@@ -32,25 +32,27 @@
     }
 
     .card {
-      width: min(1600px, 99vw);
+      width: min(1100px, 98vw);
+      height: calc(100vh - 32px);
       background: rgba(255,255,255,0.92);
       border-radius: 28px;
       box-shadow: 0 30px 60px rgba(0,0,0,0.35);
-      padding: 18px;
+      padding: 16px;
       display: grid;
+      grid-template-rows: auto 1fr auto auto;
       gap: 12px;
       box-sizing: border-box;
     }
 
-    .top {
+    /* Vertical stack */
+    .stack {
       display: grid;
-      grid-template-columns: 280px 1fr 280px;
-      gap: 14px;
-      align-items: stretch;
+      grid-template-rows: auto 1fr auto;
+      gap: 12px;
+      min-height: 0;
     }
 
-    .logoTile,
-    .periodTile {
+    .tile {
       background: linear-gradient(180deg, #f8fafc, #eef2ff);
       border-radius: 22px;
       box-shadow:
@@ -59,37 +61,36 @@
       padding: 16px;
       display: grid;
       place-items: center;
-      min-height: 340px;
       text-align: center;
+      box-sizing: border-box;
     }
 
+    /* Logo */
     .logoTile img {
-      height: 190px;
+      height: 150px;
       max-width: 100%;
       filter: drop-shadow(0 10px 22px rgba(0,0,0,0.35));
     }
 
+    /* Timer takes most space */
     .timerCard {
-      background: linear-gradient(180deg, #f8fafc, #eef2ff);
-      border-radius: 26px;
-      box-shadow:
-        inset 0 0 0 1px rgba(15,23,42,0.06),
-        0 18px 36px rgba(15,23,42,0.18);
-      padding: 22px 34px;
       display: grid;
-      place-items: center;
-      text-align: center;
-      min-height: 340px;
+      grid-template-rows: auto 1fr auto;
+      align-items: center;
+      justify-items: center;
+      padding: 18px 18px;
+      min-height: 0;
     }
 
     .timerLabel {
       font-size: 22px;
       color: #1e293b;
       letter-spacing: 0.02em;
+      align-self: start;
     }
 
     .timerValue {
-      font-size: clamp(160px, 13vw, 260px);
+      font-size: clamp(170px, 20vh, 320px);
       font-weight: 950;
       line-height: 0.92;
       color: #0b2a5b;
@@ -98,15 +99,25 @@
     }
 
     .timerSub {
-      font-size: 30px;
+      font-size: 28px;
       color: #334155;
       word-break: break-word;
+      align-self: end;
     }
 
     @keyframes pulse {
       0% { transform: scale(1); }
       50% { transform: scale(1.015); }
       100% { transform: scale(1); }
+    }
+
+    /* Period */
+    .periodTile {
+      display: grid;
+      gap: 10px;
+      align-content: center;
+      justify-items: center;
+      padding: 14px 16px;
     }
 
     .periodLabel {
@@ -116,7 +127,7 @@
     }
 
     .periodValue {
-      font-size: 72px;
+      font-size: 70px;
       font-weight: 950;
       line-height: 1;
       color: #0b2a5b;
@@ -127,19 +138,19 @@
       text-align: center;
       font-size: 22px;
       color: #334155;
-      padding: 4px 10px;
+      padding: 2px 10px;
     }
 
     .bottomBar {
       display: flex;
       justify-content: center;
-      padding-top: 8px;
+      padding-top: 6px;
       border-top: 1px solid rgba(15,23,42,0.12);
     }
 
     .switchBtn {
-      font-size: 15px;
-      padding: 10px 18px;
+      font-size: 18px;
+      padding: 12px 22px;
       border-radius: 999px;
       border: none;
       cursor: pointer;
@@ -151,11 +162,13 @@
 
     .switchBtn:active { transform: scale(0.97); }
 
-    @media (max-width: 1100px) {
-      .top { grid-template-columns: 1fr; }
-      .logoTile img { height: 150px; }
-      .timerValue { font-size: clamp(140px, 20vw, 220px); }
-      .logoTile, .periodTile, .timerCard { min-height: 260px; }
+    /* Extra small screens */
+    @media (max-width: 520px) {
+      .logoTile img { height: 120px; }
+      .timerValue { font-size: clamp(140px, 22vh, 260px); }
+      .timerSub { font-size: 22px; }
+      .periodValue { font-size: 60px; }
+      .switchBtn { font-size: 16px; padding: 10px 18px; }
     }
   </style>
 </head>
@@ -164,18 +177,18 @@
   <div class="wrap">
     <div class="card">
 
-      <div class="top">
-        <div class="logoTile">
+      <div class="stack">
+        <div class="tile logoTile">
           <img src="HSATigerCircleSPIRIT.png" alt="Harmony Science Academy Tigers">
         </div>
 
-        <div class="timerCard">
+        <div class="tile timerCard">
           <div class="timerLabel">Time remaining</div>
           <div class="timerValue" id="remainingValue">--:--</div>
           <div class="timerSub" id="nextBellValue"></div>
         </div>
 
-        <div class="periodTile">
+        <div class="tile periodTile">
           <div class="periodLabel">Period</div>
           <div class="periodValue" id="periodValue"></div>
         </div>
@@ -272,13 +285,6 @@
       return -1;
     }
 
-    function nextBlockIndex(blocks, nowM){
-      for (let i = 0; i < blocks.length; i++) {
-        if (nowM < blocks[i].start) return i;
-      }
-      return -1;
-    }
-
     function updateButton(){
       switchBtn.textContent = building === "2" ? "Building 1" : "Building 2";
     }
@@ -304,7 +310,6 @@
 
       const activeIdx = findActive(blocks, nowM);
 
-      // In a period
       if (activeIdx >= 0) {
         const b = blocks[activeIdx];
         const secondsLeft = Math.max(0, Math.floor((b.end - nowM) * 60));
@@ -317,7 +322,6 @@
         return;
       }
 
-      // Before school
       if (nowM < blocks[0].start) {
         const secondsLeft = Math.max(0, Math.floor((blocks[0].start - nowM) * 60));
         setDisplay(
@@ -329,7 +333,6 @@
         return;
       }
 
-      // Transition (between periods)
       for (let i = 0; i < blocks.length - 1; i++) {
         if (nowM >= blocks[i].end && nowM < blocks[i + 1].start) {
           const secondsLeft = Math.max(0, Math.floor((blocks[i + 1].start - nowM) * 60));
@@ -343,7 +346,6 @@
         }
       }
 
-      // After school
       setDisplay(
         "After School",
         "Schedule finished",
