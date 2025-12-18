@@ -262,7 +262,8 @@
           { start: toMin(12,14), end: toMin(13,11), period: 6 },
           { start: toMin(13,15), end: toMin(14,12), period: 7 },
           { start: toMin(14,16), end: toMin(15,13), period: 8 },
-          { start: toMin(15,30), end: toMin(17,0),  label: "After School / Club Hours" }
+          { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
+          { start: toMin(15,45), end: toMin(17,0),  label: "After-school Programs" }
         ],
         "fri": [
           { start: toMin(7,36), end: toMin(8,14), period: 1 },
@@ -289,7 +290,8 @@
           { start: toMin(12,41), end: toMin(13,11), period: 6 },
           { start: toMin(13,15), end: toMin(14,12), period: 7 },
           { start: toMin(14,16), end: toMin(15,13), period: 8 },
-          { start: toMin(15,30), end: toMin(17,0),  label: "After School / Club Hours" }
+          { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
+          { start: toMin(15,45), end: toMin(17,0),  label: "After-school Programs" }
         ],
         "fri": [
           { start: toMin(7,36), end: toMin(8,14), period: 1 },
@@ -426,7 +428,6 @@
       const blocks = schedules[building][dayKey];
       const nowM = nowMinutes();
 
-      // In a block
       for (let i = 0; i < blocks.length; i++) {
         const b = blocks[i];
         if (nowM >= b.start && nowM < b.end) {
@@ -443,7 +444,6 @@
         }
       }
 
-      // Before first block
       if (nowM < blocks[0].start) {
         const secondsLeft = Math.max(0, Math.floor((blocks[0].start - nowM) * 60));
         setDisplay(
@@ -456,7 +456,6 @@
         return;
       }
 
-      // Transtion between blocks
       for (let i = 0; i < blocks.length - 1; i++) {
         if (nowM >= blocks[i].end && nowM < blocks[i + 1].start) {
           const secondsLeft = Math.max(0, Math.floor((blocks[i + 1].start - nowM) * 60));
@@ -472,7 +471,6 @@
         }
       }
 
-      // After last block
       setDisplay(
         "After School",
         "Schedule finished",
