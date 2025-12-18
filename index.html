@@ -42,32 +42,33 @@
       box-sizing: border-box;
     }
 
-    /* ===== TOP ROW ===== */
     .top {
       display: grid;
-      grid-template-columns: 340px 1fr 240px;
+      grid-template-columns: 280px 1fr 280px;
       gap: 14px;
       align-items: stretch;
     }
 
-    /* LOGO */
-    .logo {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      padding-left: 10px;
-      background: rgba(255,255,255,0.55);
+    .logoTile,
+    .periodTile {
+      background: linear-gradient(180deg, #f8fafc, #eef2ff);
       border-radius: 22px;
-      box-shadow: inset 0 0 0 1px rgba(15,23,42,0.06);
+      box-shadow:
+        inset 0 0 0 1px rgba(15,23,42,0.06),
+        0 14px 30px rgba(15,23,42,0.15);
+      padding: 16px;
+      display: grid;
+      place-items: center;
+      min-height: 340px;
+      text-align: center;
     }
 
-    .logo img {
+    .logoTile img {
       height: 190px;
       max-width: 100%;
       filter: drop-shadow(0 10px 22px rgba(0,0,0,0.35));
     }
 
-    /* TIMER (CENTER, BIGGEST) */
     .timerCard {
       background: linear-gradient(180deg, #f8fafc, #eef2ff);
       border-radius: 26px;
@@ -76,8 +77,8 @@
         0 18px 36px rgba(15,23,42,0.18);
       padding: 22px 34px;
       display: grid;
-      align-content: center;
-      gap: 10px;
+      place-items: center;
+      text-align: center;
       min-height: 340px;
     }
 
@@ -99,27 +100,13 @@
     .timerSub {
       font-size: 30px;
       color: #334155;
+      word-break: break-word;
     }
 
     @keyframes pulse {
       0% { transform: scale(1); }
       50% { transform: scale(1.015); }
       100% { transform: scale(1); }
-    }
-
-    /* PERIOD / PASSING (RIGHT) */
-    .periodTile {
-      background: linear-gradient(180deg, #f8fafc, #eef2ff);
-      border-radius: 22px;
-      box-shadow:
-        inset 0 0 0 1px rgba(15,23,42,0.06),
-        0 14px 30px rgba(15,23,42,0.15);
-      padding: 16px;
-      display: grid;
-      align-content: center;
-      justify-items: center;
-      gap: 10px;
-      min-height: 340px;
     }
 
     .periodLabel {
@@ -165,13 +152,10 @@
     .switchBtn:active { transform: scale(0.97); }
 
     @media (max-width: 1100px) {
-      .top {
-        grid-template-columns: 1fr;
-      }
-      .logo { justify-content: center; }
-      .periodTile { min-height: 200px; }
-      .timerCard { min-height: 260px; }
+      .top { grid-template-columns: 1fr; }
+      .logoTile img { height: 150px; }
       .timerValue { font-size: clamp(140px, 20vw, 220px); }
+      .logoTile, .periodTile, .timerCard { min-height: 260px; }
     }
   </style>
 </head>
@@ -181,7 +165,7 @@
     <div class="card">
 
       <div class="top">
-        <div class="logo">
+        <div class="logoTile">
           <img src="HSATigerCircleSPIRIT.png" alt="Harmony Science Academy Tigers">
         </div>
 
@@ -207,7 +191,7 @@
   </div>
 
   <script>
-    const toMin = (h, m) => (h * 60) + m;
+    const toMin = (h, m) => h * 60 + m;
 
     const schedules = {
       "1": {
@@ -220,6 +204,16 @@
           { start: toMin(12,14), end: toMin(13,11), period: 6 },
           { start: toMin(13,15), end: toMin(14,12), period: 7 },
           { start: toMin(14,16), end: toMin(15,13), period: 8 }
+        ],
+        "fri": [
+          { start: toMin(7,36), end: toMin(8,14), period: 1 },
+          { start: toMin(8,18), end: toMin(8,56), period: 2 },
+          { start: toMin(9,0),  end: toMin(9,38), period: 3 },
+          { start: toMin(9,42), end: toMin(10,20), period: 4 },
+          { start: toMin(10,24), end: toMin(10,54), period: 5 },
+          { start: toMin(10,58), end: toMin(11,36), period: 6 },
+          { start: toMin(11,40), end: toMin(12,18), period: 7 },
+          { start: toMin(12,22), end: toMin(13,0),  period: 8 }
         ]
       },
       "2": {
@@ -232,15 +226,27 @@
           { start: toMin(12,41), end: toMin(13,11), period: 6 },
           { start: toMin(13,15), end: toMin(14,12), period: 7 },
           { start: toMin(14,16), end: toMin(15,13), period: 8 }
+        ],
+        "fri": [
+          { start: toMin(7,36), end: toMin(8,14), period: 1 },
+          { start: toMin(8,18), end: toMin(8,56), period: 2 },
+          { start: toMin(9,0),  end: toMin(9,38), period: 3 },
+          { start: toMin(9,42), end: toMin(10,20), period: 4 },
+          { start: toMin(10,24), end: toMin(11,2),  period: 5 },
+          { start: toMin(11,6),  end: toMin(11,36), period: 6 },
+          { start: toMin(11,40), end: toMin(12,18), period: 7 },
+          { start: toMin(12,22), end: toMin(13,0),  period: 8 }
         ]
       }
     };
 
     const el = (id) => document.getElementById(id);
     const switchBtn = el("switchBtn");
+
     let building = localStorage.getItem("bell_building") || "2";
 
     function pad(n){ return String(n).padStart(2, "0"); }
+
     function formatTime(mins){
       const h = Math.floor(mins / 60);
       const m = mins % 60;
@@ -248,14 +254,33 @@
       const hh = ((h + 11) % 12) + 1;
       return `${hh}:${pad(m)} ${ampm}`;
     }
+
+    function getDayKey(){
+      const d = new Date().getDay();
+      return d === 5 ? "fri" : "mon_thurs";
+    }
+
     function nowMinutes(){
       const n = new Date();
-      return (n.getHours() * 60) + n.getMinutes() + (n.getSeconds() / 60);
+      return n.getHours() * 60 + n.getMinutes() + n.getSeconds() / 60;
+    }
+
+    function findActive(blocks, nowM){
+      for (let i = 0; i < blocks.length; i++) {
+        if (nowM >= blocks[i].start && nowM < blocks[i].end) return i;
+      }
+      return -1;
+    }
+
+    function nextBlockIndex(blocks, nowM){
+      for (let i = 0; i < blocks.length; i++) {
+        if (nowM < blocks[i].start) return i;
+      }
+      return -1;
     }
 
     function updateButton(){
-      switchBtn.textContent =
-        building === "2" ? "Switch to Building 1" : "Switch to Building 2";
+      switchBtn.textContent = building === "2" ? "Building 1" : "Building 2";
     }
 
     switchBtn.onclick = () => {
@@ -265,20 +290,66 @@
       tick();
     };
 
-    function tick(){
-      const blocks = schedules[building].mon_thurs;
-      const now = nowMinutes();
+    function setDisplay(stateLabel, rangeText, secondsLeft, nextBellText){
+      el("periodValue").textContent = stateLabel;
+      el("periodRange").textContent = rangeText;
+      el("remainingValue").textContent = `${Math.floor(secondsLeft / 60)}:${pad(secondsLeft % 60)}`;
+      el("nextBellValue").textContent = nextBellText;
+    }
 
-      for (const b of blocks) {
-        if (now >= b.start && now < b.end) {
-          const left = Math.floor((b.end - now) * 60);
-          el("periodValue").textContent = `P ${b.period}`;
-          el("periodRange").textContent = `${formatTime(b.start)} to ${formatTime(b.end)}`;
-          el("remainingValue").textContent = `${Math.floor(left / 60)}:${pad(left % 60)}`;
-          el("nextBellValue").textContent = `Next bell at ${formatTime(b.end)}`;
+    function tick(){
+      const dayKey = getDayKey();
+      const blocks = schedules[building][dayKey];
+      const nowM = nowMinutes();
+
+      const activeIdx = findActive(blocks, nowM);
+
+      // In a period
+      if (activeIdx >= 0) {
+        const b = blocks[activeIdx];
+        const secondsLeft = Math.max(0, Math.floor((b.end - nowM) * 60));
+        setDisplay(
+          `P ${b.period}`,
+          `${formatTime(b.start)} to ${formatTime(b.end)}`,
+          secondsLeft,
+          `Next bell at ${formatTime(b.end)}`
+        );
+        return;
+      }
+
+      // Before school
+      if (nowM < blocks[0].start) {
+        const secondsLeft = Math.max(0, Math.floor((blocks[0].start - nowM) * 60));
+        setDisplay(
+          "Before School",
+          `First bell at ${formatTime(blocks[0].start)}`,
+          secondsLeft,
+          `Next bell at ${formatTime(blocks[0].start)}`
+        );
+        return;
+      }
+
+      // Transition (between periods)
+      for (let i = 0; i < blocks.length - 1; i++) {
+        if (nowM >= blocks[i].end && nowM < blocks[i + 1].start) {
+          const secondsLeft = Math.max(0, Math.floor((blocks[i + 1].start - nowM) * 60));
+          setDisplay(
+            "Transition",
+            `Next: P ${blocks[i + 1].period}`,
+            secondsLeft,
+            `Next bell at ${formatTime(blocks[i + 1].start)}`
+          );
           return;
         }
       }
+
+      // After school
+      setDisplay(
+        "After School",
+        "Schedule finished",
+        0,
+        "No more bells today"
+      );
     }
 
     updateButton();
