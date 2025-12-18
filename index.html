@@ -31,6 +31,7 @@
       box-sizing: border-box;
     }
 
+    /* Scroll if screen gets too short, so nothing overlaps/disappears */
     .card {
       width: min(1100px, 98vw);
       height: calc(100vh - 24px);
@@ -48,12 +49,14 @@
       box-sizing: border-box;
     }
 
+    /* BIG TIMER LAYOUT:
+       Logo smaller, Status smaller, Timer gets most of the screen */
     .stack {
       display: grid;
       grid-template-rows:
-        minmax(90px, 0.8fr)
-        minmax(95px, 0.9fr)
-        minmax(240px, 2.3fr);
+        minmax(70px, 0.45fr)    /* logo */
+        minmax(70px, 0.45fr)    /* status */
+        minmax(520px, 4.1fr);   /* TIMER (dominant) */
       gap: 10px;
       min-height: 0;
     }
@@ -72,21 +75,22 @@
       min-height: 0;
     }
 
+    /* Center logo perfectly */
+    .logoTile {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .logoTile img {
-      height: clamp(110px, 17vh, 210px);
+      height: clamp(95px, 14vh, 175px);
       max-width: 100%;
       filter: drop-shadow(0 10px 22px rgba(0,0,0,0.6));
     }
 
-    .logoTile {
-      display: flex;
-      align-items: center;      /* vertical center */
-      justify-content: center;  /* horizontal center */
-    }
-
     .statusTile {
       display: grid;
-      gap: 8px;
+      gap: 6px;
       align-content: center;
       justify-items: center;
       padding: 10px 12px;
@@ -94,13 +98,13 @@
     }
 
     .statusLabel {
-      font-size: clamp(13px, 2.0vh, 18px);
+      font-size: clamp(13px, 1.9vh, 18px);
       color: #ffffff;
       letter-spacing: 0.05em;
     }
 
     .statusValue {
-      font-size: clamp(34px, 5.8vh, 60px);
+      font-size: clamp(34px, 5.5vh, 62px);
       font-weight: 950;
       color: #ffffff;
       text-shadow: 0 6px 16px rgba(0,0,0,0.65);
@@ -108,36 +112,38 @@
       white-space: nowrap;
     }
 
+    /* TIMER (below status, huge) */
     .timerCard {
       overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
-      padding: 12px;
+      gap: 10px;
+      padding: 14px 14px;
     }
 
     .timerLabel {
-      font-size: clamp(14px, 2.2vh, 20px);
+      font-size: clamp(14px, 2.0vh, 20px);
       color: #ffffff;
       letter-spacing: 0.04em;
       line-height: 1.1;
     }
 
+    /* HUGE yellow timer */
     .timerValue {
-      font-size: clamp(160px, 28vh, 420px);
+      font-size: clamp(170px, 30vh, 520px);
       font-weight: 950;
-      line-height: 0.95;
+      line-height: 0.86;
       color: #facc15;
-      text-shadow: 0 10px 22px rgba(0,0,0,0.75);
+      text-shadow: 0 16px 32px rgba(0,0,0,0.78);
       animation: pulse 1.5s ease-in-out infinite;
       margin: 0;
       white-space: nowrap;
     }
 
     .timerSub {
-      font-size: clamp(13px, 2.3vh, 20px);
+      font-size: clamp(14px, 2.0vh, 22px);
       color: #ffffff;
       line-height: 1.15;
       max-width: 100%;
@@ -152,7 +158,7 @@
 
     .periodRange {
       text-align: center;
-      font-size: clamp(13px, 2.0vh, 18px);
+      font-size: clamp(13px, 1.9vh, 18px);
       color: #ffffff;
       padding: 2px 10px;
       overflow-wrap: anywhere;
@@ -168,7 +174,7 @@
     }
 
     .btn {
-      font-size: clamp(14px, 2.2vh, 18px);
+      font-size: clamp(14px, 2.0vh, 18px);
       padding: 10px 18px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.55);
@@ -181,27 +187,39 @@
 
     .btn:active { transform: scale(0.97); }
 
+    /* Protect smaller landscape screens */
     @media (max-width: 1024px) and (orientation: landscape) {
       .wrap { padding: 8px; }
       .card { height: calc(100vh - 16px); max-height: calc(100vh - 16px); padding: 10px; gap: 8px; }
-      .stack { gap: 8px; }
+
+      .stack {
+        grid-template-rows:
+          minmax(60px, 0.4fr)
+          minmax(60px, 0.4fr)
+          minmax(360px, 3.6fr);
+        gap: 8px;
+      }
+
       .tile { padding: 10px; }
-      .logoTile img { height: clamp(70px, 11vh, 115px); }
-      .timerValue { font-size: clamp(78px, 14vh, 180px); }
-      .timerSub { font-size: clamp(12px, 2.1vh, 18px); }
-      .statusValue { font-size: clamp(30px, 5.4vh, 52px); }
+      .logoTile img { height: clamp(85px, 13vh, 150px); }
+      .timerCard { padding: 12px; gap: 8px; }
+      .timerValue { font-size: clamp(150px, 28vh, 420px); }
+      .timerSub { font-size: clamp(13px, 1.9vh, 18px); }
+      .statusValue { font-size: clamp(32px, 5.0vh, 56px); }
     }
 
     @media (max-height: 620px) {
       .card { padding: 10px; gap: 8px; }
+
       .stack {
         grid-template-rows:
-          minmax(70px, 0.8fr)
-          minmax(80px, 0.9fr)
-          minmax(180px, 2.3fr);
+          minmax(55px, 0.4fr)
+          minmax(55px, 0.4fr)
+          minmax(300px, 3.6fr);
         gap: 8px;
       }
-      .timerValue { font-size: clamp(70px, 12vh, 150px); }
+
+      .timerValue { font-size: clamp(130px, 26vh, 360px); }
     }
   </style>
 </head>
@@ -295,8 +313,7 @@
 
     let soundEnabled = (localStorage.getItem("bell_sound_enabled") || "0") === "1";
     let audioCtx = null;
-
-    let lastBeepKey = "";  // prevents double beeps in the same second
+    let lastBeepKey = ""; // prevents double beeps in the same second
 
     function pad(n){ return String(n).padStart(2, "0"); }
 
@@ -327,17 +344,12 @@
     }
 
     function ensureAudio(){
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === "suspended") {
-        audioCtx.resume();
-      }
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") audioCtx.resume();
     }
 
     function beep(){
       if (!soundEnabled) return;
-
       ensureAudio();
       if (!audioCtx) return;
 
@@ -358,6 +370,22 @@
 
       osc.start(t);
       osc.stop(t + 0.13);
+    }
+
+    function maybeBeep(phase, secondsLeftInt){
+      if (!soundEnabled) return;
+      if (secondsLeftInt <= 0) return;
+
+      let shouldBeep = false;
+      if (phase === "period" && secondsLeftInt <= 5) shouldBeep = true;
+      if (phase === "transtion" && secondsLeftInt <= 2) shouldBeep = true;
+      if (!shouldBeep) return;
+
+      const key = `${phase}_${secondsLeftInt}`;
+      if (key === lastBeepKey) return;
+
+      lastBeepKey = key;
+      beep();
     }
 
     switchBtn.onclick = () => {
@@ -381,29 +409,12 @@
       el("nextBellValue").textContent = nextBellText;
     }
 
-    function maybeBeep(phase, secondsLeftInt){
-      if (!soundEnabled) return;
-      if (secondsLeftInt <= 0) return;
-
-      let shouldBeep = false;
-
-      if (phase === "period" && secondsLeftInt <= 5) shouldBeep = true;
-      if (phase === "transtion" && secondsLeftInt <= 2) shouldBeep = true;
-
-      if (!shouldBeep) return;
-
-      const key = `${phase}_${secondsLeftInt}`;
-      if (key === lastBeepKey) return;
-
-      lastBeepKey = key;
-      beep();
-    }
-
     function tick(){
       const dayKey = getDayKey();
       const blocks = schedules[building][dayKey];
       const nowM = nowMinutes();
 
+      // In period
       for (let i = 0; i < blocks.length; i++) {
         const b = blocks[i];
         if (nowM >= b.start && nowM < b.end) {
@@ -419,6 +430,7 @@
         }
       }
 
+      // Before school
       if (nowM < blocks[0].start) {
         const secondsLeft = Math.max(0, Math.floor((blocks[0].start - nowM) * 60));
         setDisplay(
@@ -431,6 +443,7 @@
         return;
       }
 
+      // Transtion between periods
       for (let i = 0; i < blocks.length - 1; i++) {
         if (nowM >= blocks[i].end && nowM < blocks[i + 1].start) {
           const secondsLeft = Math.max(0, Math.floor((blocks[i + 1].start - nowM) * 60));
@@ -445,6 +458,7 @@
         }
       }
 
+      // After school
       setDisplay(
         "After School",
         "Schedule finished",
