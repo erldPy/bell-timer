@@ -11,10 +11,10 @@
     body {
       margin: 0;
       height: 100vh;
-      background: linear-gradient(-45deg, #0b2a5b, #1e3a8a, #0b2a5b);
+      background: linear-gradient(-45deg, #0b2a5b, #b91c1c, #0b2a5b, #1e3a8a);
       background-size: 400% 400%;
       animation: bgMove 20s ease infinite;
-      color: #ffffff;
+      color: #0f172a;
     }
 
     @keyframes bgMove {
@@ -27,199 +27,135 @@
       height: 100vh;
       display: grid;
       place-items: center;
-      padding: 12px;
+      padding: 16px;
       box-sizing: border-box;
     }
 
-    /* Scroll if screen gets too short, so nothing overlaps/disappears */
     .card {
-      width: min(1100px, 98vw);
-      height: calc(100vh - 24px);
-      max-height: calc(100vh - 24px);
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
-
-      background: rgba(5,20,50,0.85);
-      border-radius: 24px;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-      padding: 12px;
+      width: min(1600px, 99vw);
+      background: rgba(255,255,255,0.92);
+      border-radius: 28px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.35);
+      padding: 18px;
       display: grid;
-      grid-template-rows: 1fr auto auto;
-      gap: 10px;
+      gap: 12px;
       box-sizing: border-box;
     }
 
-    /* BIG TIMER LAYOUT:
-       Logo smaller, Status smaller, Timer gets most of the screen */
-    .stack {
+    .top {
       display: grid;
-      grid-template-rows:
-        minmax(70px, 0.45fr)    /* logo */
-        minmax(70px, 0.45fr)    /* status */
-        minmax(520px, 4.1fr);   /* TIMER (dominant) */
-      gap: 10px;
-      min-height: 0;
+      grid-template-columns: 280px 1fr 280px;
+      gap: 14px;
+      align-items: stretch;
     }
 
-    .tile {
-      background: linear-gradient(180deg, #0b2a5b, #071a36);
-      border-radius: 18px;
+    .logoTile,
+    .periodTile {
+      background: linear-gradient(180deg, #f8fafc, #eef2ff);
+      border-radius: 22px;
       box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,0.12),
-        0 14px 30px rgba(0,0,0,0.60);
-      padding: 12px;
+        inset 0 0 0 1px rgba(15,23,42,0.06),
+        0 14px 30px rgba(15,23,42,0.15);
+      padding: 16px;
       display: grid;
       place-items: center;
+      min-height: 340px;
       text-align: center;
-      box-sizing: border-box;
-      min-height: 0;
-    }
-
-    /* Center logo perfectly */
-    .logoTile {
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     .logoTile img {
-      height: clamp(95px, 14vh, 175px);
+      height: 190px;
       max-width: 100%;
-      filter: drop-shadow(0 10px 22px rgba(0,0,0,0.6));
+      filter: drop-shadow(0 10px 22px rgba(0,0,0,0.35));
     }
 
-    .statusTile {
-      display: grid;
-      gap: 6px;
-      align-content: center;
-      justify-items: center;
-      padding: 10px 12px;
-      min-height: 0;
-    }
-
-    .statusLabel {
-      font-size: clamp(13px, 1.9vh, 18px);
-      color: #ffffff;
-      letter-spacing: 0.05em;
-    }
-
-    .statusValue {
-      font-size: clamp(34px, 5.5vh, 62px);
-      font-weight: 950;
-      color: #ffffff;
-      text-shadow: 0 6px 16px rgba(0,0,0,0.65);
-      line-height: 1;
-      white-space: nowrap;
-    }
-
-    /* TIMER (below status, huge) */
     .timerCard {
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 14px 14px;
+      background: linear-gradient(180deg, #f8fafc, #eef2ff);
+      border-radius: 26px;
+      box-shadow:
+        inset 0 0 0 1px rgba(15,23,42,0.06),
+        0 18px 36px rgba(15,23,42,0.18);
+      padding: 22px 34px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      min-height: 340px;
     }
 
     .timerLabel {
-      font-size: clamp(14px, 2.0vh, 20px);
-      color: #ffffff;
-      letter-spacing: 0.04em;
-      line-height: 1.1;
+      font-size: 22px;
+      color: #1e293b;
+      letter-spacing: 0.02em;
     }
 
-    /* HUGE yellow timer */
     .timerValue {
-      font-size: clamp(170px, 30vh, 520px);
+      font-size: clamp(160px, 13vw, 260px);
       font-weight: 950;
-      line-height: 0.86;
-      color: #facc15;
-      text-shadow: 0 16px 32px rgba(0,0,0,0.78);
+      line-height: 0.92;
+      color: #0b2a5b;
+      text-shadow: 0 10px 22px rgba(11,42,91,0.35);
       animation: pulse 1.5s ease-in-out infinite;
-      margin: 0;
-      white-space: nowrap;
     }
 
     .timerSub {
-      font-size: clamp(14px, 2.0vh, 22px);
-      color: #ffffff;
-      line-height: 1.15;
-      max-width: 100%;
-      overflow-wrap: anywhere;
+      font-size: 30px;
+      color: #334155;
+      word-break: break-word;
     }
 
     @keyframes pulse {
       0% { transform: scale(1); }
-      50% { transform: scale(1.02); }
+      50% { transform: scale(1.015); }
       100% { transform: scale(1); }
+    }
+
+    .periodLabel {
+      font-size: 20px;
+      color: #1e293b;
+      letter-spacing: 0.02em;
+    }
+
+    .periodValue {
+      font-size: 72px;
+      font-weight: 950;
+      line-height: 1;
+      color: #0b2a5b;
+      text-shadow: 0 6px 16px rgba(11,42,91,0.30);
     }
 
     .periodRange {
       text-align: center;
-      font-size: clamp(13px, 1.9vh, 18px);
-      color: #ffffff;
-      padding: 2px 10px;
-      overflow-wrap: anywhere;
+      font-size: 22px;
+      color: #334155;
+      padding: 4px 10px;
     }
 
     .bottomBar {
       display: flex;
       justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      padding-top: 6px;
-      border-top: 1px solid rgba(255,255,255,0.20);
+      padding-top: 8px;
+      border-top: 1px solid rgba(15,23,42,0.12);
     }
 
-    .btn {
-      font-size: clamp(14px, 2.0vh, 18px);
+    .switchBtn {
+      font-size: 15px;
       padding: 10px 18px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.55);
+      border: none;
       cursor: pointer;
       font-weight: 800;
-      background: rgba(11,42,91,0.90);
-      color: #ffffff;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.50);
+      background: linear-gradient(135deg, #0b2a5b, #1e40af);
+      color: white;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.18);
     }
 
-    .btn:active { transform: scale(0.97); }
+    .switchBtn:active { transform: scale(0.97); }
 
-    /* Protect smaller landscape screens */
-    @media (max-width: 1024px) and (orientation: landscape) {
-      .wrap { padding: 8px; }
-      .card { height: calc(100vh - 16px); max-height: calc(100vh - 16px); padding: 10px; gap: 8px; }
-
-      .stack {
-        grid-template-rows:
-          minmax(60px, 0.4fr)
-          minmax(60px, 0.4fr)
-          minmax(360px, 3.6fr);
-        gap: 8px;
-      }
-
-      .tile { padding: 10px; }
-      .logoTile img { height: clamp(85px, 13vh, 150px); }
-      .timerCard { padding: 12px; gap: 8px; }
-      .timerValue { font-size: clamp(150px, 28vh, 420px); }
-      .timerSub { font-size: clamp(13px, 1.9vh, 18px); }
-      .statusValue { font-size: clamp(32px, 5.0vh, 56px); }
-    }
-
-    @media (max-height: 620px) {
-      .card { padding: 10px; gap: 8px; }
-
-      .stack {
-        grid-template-rows:
-          minmax(55px, 0.4fr)
-          minmax(55px, 0.4fr)
-          minmax(300px, 3.6fr);
-        gap: 8px;
-      }
-
-      .timerValue { font-size: clamp(130px, 26vh, 360px); }
+    @media (max-width: 1100px) {
+      .top { grid-template-columns: 1fr; }
+      .logoTile img { height: 150px; }
+      .timerValue { font-size: clamp(140px, 20vw, 220px); }
+      .logoTile, .periodTile, .timerCard { min-height: 260px; }
     }
   </style>
 </head>
@@ -228,28 +164,27 @@
   <div class="wrap">
     <div class="card">
 
-      <div class="stack">
-        <div class="tile logoTile">
+      <div class="top">
+        <div class="logoTile">
           <img src="HSATigerCircleSPIRIT.png" alt="Harmony Science Academy Tigers">
         </div>
 
-        <div class="tile statusTile">
-          <div class="statusLabel">Status</div>
-          <div class="statusValue" id="statusValue"></div>
-        </div>
-
-        <div class="tile timerCard">
+        <div class="timerCard">
           <div class="timerLabel">Time remaining</div>
           <div class="timerValue" id="remainingValue">--:--</div>
           <div class="timerSub" id="nextBellValue"></div>
+        </div>
+
+        <div class="periodTile">
+          <div class="periodLabel">Period</div>
+          <div class="periodValue" id="periodValue"></div>
         </div>
       </div>
 
       <div class="periodRange" id="periodRange"></div>
 
       <div class="bottomBar">
-        <button class="btn" id="switchBtn"></button>
-        <button class="btn" id="soundBtn"></button>
+        <button class="switchBtn" id="switchBtn"></button>
       </div>
 
     </div>
@@ -307,13 +242,8 @@
 
     const el = (id) => document.getElementById(id);
     const switchBtn = el("switchBtn");
-    const soundBtn = el("soundBtn");
 
     let building = localStorage.getItem("bell_building") || "2";
-
-    let soundEnabled = (localStorage.getItem("bell_sound_enabled") || "0") === "1";
-    let audioCtx = null;
-    let lastBeepKey = ""; // prevents double beeps in the same second
 
     function pad(n){ return String(n).padStart(2, "0"); }
 
@@ -335,75 +265,33 @@
       return n.getHours() * 60 + n.getMinutes() + n.getSeconds() / 60;
     }
 
-    function updateBuildingButton(){
+    function findActive(blocks, nowM){
+      for (let i = 0; i < blocks.length; i++) {
+        if (nowM >= blocks[i].start && nowM < blocks[i].end) return i;
+      }
+      return -1;
+    }
+
+    function nextBlockIndex(blocks, nowM){
+      for (let i = 0; i < blocks.length; i++) {
+        if (nowM < blocks[i].start) return i;
+      }
+      return -1;
+    }
+
+    function updateButton(){
       switchBtn.textContent = building === "2" ? "Building 1" : "Building 2";
-    }
-
-    function updateSoundButton(){
-      soundBtn.textContent = soundEnabled ? "Sound On" : "Sound Off";
-    }
-
-    function ensureAudio(){
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === "suspended") audioCtx.resume();
-    }
-
-    function beep(){
-      if (!soundEnabled) return;
-      ensureAudio();
-      if (!audioCtx) return;
-
-      const t = audioCtx.currentTime;
-
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-
-      osc.type = "sine";
-      osc.frequency.value = 880;
-
-      gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.exponentialRampToValueAtTime(0.22, t + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      osc.start(t);
-      osc.stop(t + 0.13);
-    }
-
-    function maybeBeep(phase, secondsLeftInt){
-      if (!soundEnabled) return;
-      if (secondsLeftInt <= 0) return;
-
-      let shouldBeep = false;
-      if (phase === "period" && secondsLeftInt <= 5) shouldBeep = true;
-      if (phase === "transtion" && secondsLeftInt <= 2) shouldBeep = true;
-      if (!shouldBeep) return;
-
-      const key = `${phase}_${secondsLeftInt}`;
-      if (key === lastBeepKey) return;
-
-      lastBeepKey = key;
-      beep();
     }
 
     switchBtn.onclick = () => {
       building = building === "2" ? "1" : "2";
       localStorage.setItem("bell_building", building);
-      updateBuildingButton();
+      updateButton();
       tick();
     };
 
-    soundBtn.onclick = () => {
-      soundEnabled = !soundEnabled;
-      localStorage.setItem("bell_sound_enabled", soundEnabled ? "1" : "0");
-      if (soundEnabled) ensureAudio();
-      updateSoundButton();
-    };
-
-    function setDisplay(statusLabel, rangeText, secondsLeft, nextBellText){
-      el("statusValue").textContent = statusLabel;
+    function setDisplay(stateLabel, rangeText, secondsLeft, nextBellText){
+      el("periodValue").textContent = stateLabel;
       el("periodRange").textContent = rangeText;
       el("remainingValue").textContent = `${Math.floor(secondsLeft / 60)}:${pad(secondsLeft % 60)}`;
       el("nextBellValue").textContent = nextBellText;
@@ -414,20 +302,19 @@
       const blocks = schedules[building][dayKey];
       const nowM = nowMinutes();
 
-      // In period
-      for (let i = 0; i < blocks.length; i++) {
-        const b = blocks[i];
-        if (nowM >= b.start && nowM < b.end) {
-          const secondsLeft = Math.max(0, Math.floor((b.end - nowM) * 60));
-          setDisplay(
-            `P ${b.period}`,
-            `${formatTime(b.start)} to ${formatTime(b.end)}`,
-            secondsLeft,
-            `Next bell at ${formatTime(b.end)}`
-          );
-          maybeBeep("period", secondsLeft);
-          return;
-        }
+      const activeIdx = findActive(blocks, nowM);
+
+      // In a period
+      if (activeIdx >= 0) {
+        const b = blocks[activeIdx];
+        const secondsLeft = Math.max(0, Math.floor((b.end - nowM) * 60));
+        setDisplay(
+          `P ${b.period}`,
+          `${formatTime(b.start)} to ${formatTime(b.end)}`,
+          secondsLeft,
+          `Next bell at ${formatTime(b.end)}`
+        );
+        return;
       }
 
       // Before school
@@ -439,21 +326,19 @@
           secondsLeft,
           `Next bell at ${formatTime(blocks[0].start)}`
         );
-        lastBeepKey = "";
         return;
       }
 
-      // Transtion between periods
+      // Transition (between periods)
       for (let i = 0; i < blocks.length - 1; i++) {
         if (nowM >= blocks[i].end && nowM < blocks[i + 1].start) {
           const secondsLeft = Math.max(0, Math.floor((blocks[i + 1].start - nowM) * 60));
           setDisplay(
-            "Transtion",
-            `From ${formatTime(blocks[i].end)} to ${formatTime(blocks[i + 1].start)}`,
+            "Transition",
+            `Next: P ${blocks[i + 1].period}`,
             secondsLeft,
-            `Next: P ${blocks[i + 1].period} at ${formatTime(blocks[i + 1].start)}`
+            `Next bell at ${formatTime(blocks[i + 1].start)}`
           );
-          maybeBeep("transtion", secondsLeft);
           return;
         }
       }
@@ -465,13 +350,11 @@
         0,
         "No more bells today"
       );
-      lastBeepKey = "";
     }
 
-    updateBuildingButton();
-    updateSoundButton();
+    updateButton();
     tick();
-    setInterval(tick, 250);
+    setInterval(tick, 1000);
   </script>
 </body>
 </html>
