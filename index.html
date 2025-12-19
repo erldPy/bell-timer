@@ -257,7 +257,20 @@
 
       .timerValue { font-size: clamp(130px, 26vh, 360px); }
     }
-  </style>
+
+   /* Hide Time remaining earlier to prevent overlap */
+   @media (max-height: 700px){
+  	.timerCard.noTimer .timerLabel{
+    	   display: none;
+   }
+
+   .timerCard.noTimer .timerSub{
+       top: 50%;
+      transform: translate(-50%, -50%);
+   }
+}
+
+</style>
 </head>
 
 <body>
