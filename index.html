@@ -9,13 +9,23 @@
     :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
 
     body {
-      margin: 0;
-      height: 100vh;
-      background: linear-gradient(-45deg, #0b2a5b, #1e3a8a, #0b2a5b);
-      background-size: 400% 400%;
-      animation: bgMove 20s ease infinite;
-      color: #ffffff;
-    }
+ 	 margin: 0;
+ 	 height: 100vh;
+
+  	/* Dynamic background */
+  	background: linear-gradient(-45deg,
+   	#0b2a5b,
+   	#7c3aed,
+   	#ef4444,
+    	#22c55e,
+   	#06b6d4,
+    	#0b2a5b
+  	);
+  	background-size: 500% 500%;
+ 	animation: bgMove 45s linear infinite;
+
+  	color: #ffffff;
+	}
 
     @keyframes bgMove {
       0% { background-position: 0% 50%; }
@@ -59,18 +69,18 @@
     }
 
     .tile {
-      background: linear-gradient(180deg, #0b2a5b, #071a36);
-      border-radius: 18px;
-      box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,0.12),
-        0 14px 30px rgba(0,0,0,0.60);
-      padding: 12px;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      box-sizing: border-box;
-      min-height: 0;
-    }
+  	background: linear-gradient(180deg, #1f2933, #111827);
+  	border-radius: 18px;
+  	box-shadow:
+    	inset 0 0 0 1px rgba(255,255,255,0.12),
+    	0 14px 30px rgba(0,0,0,0.60);
+  	padding: 12px;
+  	display: grid;
+  	place-items: center;
+  	text-align: center;
+  	box-sizing: border-box;
+  	min-height: 0;
+	}
 
     .logoTile {
       display: flex;
@@ -116,6 +126,7 @@
       justify-content: space-between;
       gap: 10px;
       padding: 14px 14px;
+      background: linear-gradient(180deg, #0b2a5b, #071a36);
     }
 
     .timerLabel {
@@ -174,12 +185,16 @@
       border: 1px solid rgba(255,255,255,0.55);
       cursor: pointer;
       font-weight: 800;
-      background: rgba(11,42,91,0.90);
+      background: linear-gradient(180deg, #1f2933, #111827);
       color: #ffffff;
       box-shadow: 0 6px 14px rgba(0,0,0,0.50);
     }
 
     .btn:active { transform: scale(0.97); }
+
+    .btn:hover {
+       filter: brightness(1.15);
+     }
 
     @media (max-width: 1024px) and (orientation: landscape) {
       .wrap { padding: 8px; }
@@ -344,7 +359,7 @@
     }
 
     function updateBuildingButton(){
-      switchBtn.textContent = building === "2" ? "Building 1" : "Building 2";
+      switchBtn.textContent = building === "2" ? "Show Building 1" : "Show Building 2";
     }
 
     function updateSoundButton(){
@@ -412,7 +427,14 @@
     function setDisplay(statusLabel, rangeText, secondsLeft, nextBellText){
       el("statusValue").textContent = statusLabel;
       el("periodRange").textContent = rangeText;
-      el("remainingValue").textContent = `${Math.floor(secondsLeft / 60)}:${pad(secondsLeft % 60)}`;
+
+      if (secondsLeft === null || secondsLeft === undefined) {
+        el("remainingValue").textContent = "--:--";
+      } else {
+        const s = Math.max(0, Math.floor(secondsLeft));
+        el("remainingValue").textContent = `${Math.floor(s / 60)}:${pad(s % 60)}`;
+      }
+
       el("nextBellValue").textContent = nextBellText;
     }
 
@@ -420,7 +442,7 @@
       const dayKey = getDayKey();
 
       if (dayKey === "sun") {
-        setDisplay("No School", "Sunday", 0, "No bells today");
+        setDisplay("No School", "Sunday", null, "No bells today");
         lastBeepKey = "";
         return;
       }
@@ -472,10 +494,10 @@
       }
 
       setDisplay(
-        "After School",
-        "Schedule finished",
-        0,
-        "No more bells today"
+        "No Classes or Activities",
+        "School day completed",
+        null,
+        `Next school day starts at ${formatTime(blocks[0].start)}`
       );
       lastBeepKey = "";
     }
