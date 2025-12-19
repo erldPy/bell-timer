@@ -58,15 +58,13 @@
       box-sizing: border-box;
     }
 
-    .stack {
-      display: grid;
-      grid-template-rows:
-        minmax(70px, 0.45fr)
-        minmax(70px, 0.45fr)
-        minmax(520px, 4.1fr);
-      gap: 10px;
-      min-height: 0;
-    }
+    .stack{
+  display:grid;
+  grid-template-rows: minmax(70px, 0.55fr) 1fr;
+  gap:10px;
+  min-height:0;
+}
+
 
     .tile {
   	background: linear-gradient(180deg, #1f2933, #111827);
@@ -94,6 +92,16 @@
       filter: drop-shadow(0 10px 22px rgba(0,0,0,0.6));
     }
 
+    .logoBottom{
+  	margin-top: 6px;
+  	padding: 8px;
+    }
+
+    .logoBottom img{
+  	height: clamp(70px, 10vh, 120px);
+  	opacity: 0.95;
+     }
+
     .statusTile {
       display: grid;
       gap: 6px;
@@ -101,6 +109,8 @@
       justify-items: center;
       padding: 10px 12px;
       min-height: 0;
+      gap: 0;
+      padding: 6px 12px;
     }
 
     .statusLabel {
@@ -118,42 +128,60 @@
       white-space: nowrap;
     }
 
-    .timerCard {
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 14px 14px;
-      background: linear-gradient(180deg, #0b2a5b, #071a36);
+    .timerCard{
+  	position: relative;
+  	overflow: hidden;
+  	padding: 0;
+  	display: block;      /* important */
     }
 
-    .timerLabel {
-      font-size: clamp(14px, 2.0vh, 20px);
-      color: #ffffff;
-      letter-spacing: 0.04em;
-      line-height: 1.1;
+    .timerLabel{
+  	position: absolute;
+  	top: 12px;
+  	left: 50%;
+  	transform: translateX(-50%);
+  	font-size: clamp(12px, 1.6vh, 16px);
+  	margin: 0;
     }
 
-    .timerValue {
-      font-size: clamp(200px, 34vh, 480px);
-      font-weight: 950;
-      line-height: 0.86;
-      color: #facc15;
-      text-shadow: 0 16px 32px rgba(0,0,0,0.78);
-      animation: pulse 1.5s ease-in-out infinite;
-      margin: 0;
-      white-space: nowrap;
+    .timerValue{
+  	position: absolute;
+  	top: 40%;                  /* optical center */
+  	left: 50%;
+  	transform: translate(-50%, -50%);
+
+  	font-size: clamp(240px, 40vh, 560px);
+  	font-weight: 950;
+  	line-height: 0.78;
+  	color: #facc15;
+  	text-shadow: 0 16px 32px rgba(0,0,0,0.78);
+  	white-space: nowrap;
+  	margin: 0;
     }
 
-    .timerSub {
-      font-size: clamp(14px, 2.0vh, 22px);
-      color: #ffffff;
-      line-height: 1.15;
-      max-width: 100%;
-      overflow-wrap: anywhere;
-    }
+    .timerSub{
+  	position: absolute;
+  	bottom: 12px;
+  	left: 50%;
+  	transform: translateX(-50%);
+  	font-size: clamp(12px, 1.6vh, 16px);
+  	margin: 0;
+  	text-align: center;
+  	width: calc(100% - 24px);
+     }
+
+
+.timerCard.noTimer .timerValue{ display:none; }
+.timerCard.noTimer .timerLabel{ top: 14px; }
+.timerCard.noTimer .timerSub{
+  top: 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  font-size: clamp(18px, 2.4vh, 26px);
+  width: calc(100% - 24px);
+}
+
+
 
     @keyframes pulse {
       0% { transform: scale(1); }
@@ -237,13 +265,8 @@
     <div class="card">
 
       <div class="stack">
-        <div class="tile logoTile">
-          <img src="HSATigerCircleSPIRIT.png" alt="Harmony Science Academy Tigers">
-        </div>
-
         <div class="tile statusTile">
-          <div class="statusLabel">Status</div>
-          <div class="statusValue" id="statusValue"></div>
+           <div class="statusValue" id="statusValue"></div>
         </div>
 
         <div class="tile timerCard">
@@ -254,6 +277,10 @@
       </div>
 
       <div class="periodRange" id="periodRange"></div>
+
+      <div class="tile logoTile logoBottom">
+  	<img src="HSATigerCircleSPIRIT.png" alt="Harmony Science Academy Tigers">
+      </div>
 
       <div class="bottomBar">
         <button class="btn" id="switchBtn"></button>
@@ -425,18 +452,23 @@
     };
 
     function setDisplay(statusLabel, rangeText, secondsLeft, nextBellText){
-      el("statusValue").textContent = statusLabel;
-      el("periodRange").textContent = rangeText;
+  el("statusValue").textContent = statusLabel;
+  el("periodRange").textContent = rangeText;
 
-      if (secondsLeft === null || secondsLeft === undefined) {
-        el("remainingValue").textContent = "--:--";
-      } else {
-        const s = Math.max(0, Math.floor(secondsLeft));
-        el("remainingValue").textContent = `${Math.floor(s / 60)}:${pad(s % 60)}`;
-      }
+  const timerTile = document.querySelector(".timerCard");
 
-      el("nextBellValue").textContent = nextBellText;
-    }
+  if (secondsLeft === null || secondsLeft === undefined) {
+    timerTile.classList.add("noTimer");
+    el("remainingValue").textContent = "";
+  } else {
+    timerTile.classList.remove("noTimer");
+    const s = Math.max(0, Math.floor(secondsLeft));
+    el("remainingValue").textContent = `${Math.floor(s / 60)}:${pad(s % 60)}`;
+  }
+
+  el("nextBellValue").textContent = nextBellText;
+}
+
 
     function tick(){
       const dayKey = getDayKey();
@@ -494,11 +526,12 @@
       }
 
       setDisplay(
-        "No Classes or Activities",
-        "School day completed",
-        null,
-        `Next school day starts at ${formatTime(blocks[0].start)}`
-      );
+  	"No Classes or Activities",
+  	"",
+  	null,
+ 	 `Next school day starts at ${formatTime(blocks[0].start)}`
+	);
+
       lastBeepKey = "";
     }
 
