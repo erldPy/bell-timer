@@ -543,6 +543,40 @@
     updateSoundButton();
     tick();
     setInterval(tick, 250);
+
+updateBuildingButton();
+updateSoundButton();
+tick();
+setInterval(tick, 250);
+
+/* ---------- Fullscreen toggle on double tap / double click ---------- */
+let lastTap = 0;
+
+function toggleFullscreen(){
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+/* Touch devices */
+document.addEventListener("touchend", () => {
+  const now = Date.now();
+  if (now - lastTap < 300) {
+    toggleFullscreen();
+  }
+  lastTap = now;
+});
+
+/* Desktop */
+document.addEventListener("dblclick", () => {
+  toggleFullscreen();
+});
+</script>
+
+
+
   </script>
 </body>
 </html>
