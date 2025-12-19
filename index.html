@@ -575,7 +575,7 @@
           const secondsLeft = Math.max(0, Math.floor((blocks[i + 1].start - nowM) * 60));
           const nextName = blocks[i + 1].label ? blocks[i + 1].label : `P ${blocks[i + 1].period}`;
           setDisplay(
-            "Transtion",
+            "Transition",
             `Next: ${nextName}`,
             secondsLeft,
             `Next bell at ${formatTime(blocks[i + 1].start)}`
