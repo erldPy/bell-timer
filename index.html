@@ -56,7 +56,7 @@
       padding: 12px;
 
       display: grid;
-      grid-template-rows: 1fr auto;
+      grid-template-rows: 1fr auto auto;
       gap: 10px;
       box-sizing: border-box;
     }
@@ -167,24 +167,6 @@
       overflow-wrap: anywhere;
     }
 
-    .logoTile{
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .logoBottom{
-      margin-top: 6px;
-      padding: 8px;
-    }
-
-    .logoBottom img{
-      height: clamp(70px, 10vh, 120px);
-      max-width: 100%;
-      filter: drop-shadow(0 10px 22px rgba(0,0,0,0.6));
-      opacity: 0.95;
-    }
-
     .bottomBar{
       display: flex;
       justify-content: center;
@@ -228,26 +210,22 @@
 
       .timerLabel{ display: none; }
       .timerCard{ min-height: 140px; }
+
       .timerValue{
         top: 52%;
         font-size: clamp(110px, min(48vh, 72vw), 480px);
         line-height: 0.74;
       }
 
-@media (min-width: 700px) and (max-width: 1100px){
-  .stack{ grid-template-rows: auto 1fr; }
-  .timerCard{ min-height: 300px; }
-}
-
-
-
       .periodRange{
         font-size: 12px;
         padding: 0;
         margin: 0;
       }
+    }
 
-      .logoBottom img{ height: 52px; }
+    @media (min-width: 700px) and (max-width: 1100px){
+      .timerCard{ min-height: 300px; }
     }
   </style>
 </head>
@@ -269,8 +247,6 @@
       </div>
 
       <div class="periodRange" id="periodRange"></div>
-
-      
 
       <div class="bottomBar">
         <button class="btn" id="switchBtn"></button>
@@ -389,42 +365,38 @@
     }
 
     function beep(){
-  if (!soundEnabled) return;
-  ensureAudio();
-  if (!audioCtx) return;
+      if (!soundEnabled) return;
+      ensureAudio();
+      if (!audioCtx) return;
 
-  const t = audioCtx.currentTime;
+      const t = audioCtx.currentTime;
 
-  // Sharper, higher pitch, louder
-  const osc1 = audioCtx.createOscillator();
-  const osc2 = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
+      const osc1 = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
 
-  osc1.type = "square";
-  osc2.type = "sine";
+      osc1.type = "square";
+      osc2.type = "sine";
 
-  // Higher pitch
-  osc1.frequency.setValueAtTime(1760, t); // A6
-  osc2.frequency.setValueAtTime(2093, t); // C7
+      osc1.frequency.setValueAtTime(1760, t);
+      osc2.frequency.setValueAtTime(2093, t);
 
-  // Slight drop to sound more like a bell chirp
-  osc1.frequency.exponentialRampToValueAtTime(1320, t + 0.08);
-  osc2.frequency.exponentialRampToValueAtTime(1568, t + 0.08);
+      osc1.frequency.exponentialRampToValueAtTime(1320, t + 0.08);
+      osc2.frequency.exponentialRampToValueAtTime(1568, t + 0.08);
 
-  // Louder envelope
-  gain.gain.setValueAtTime(0.0001, t);
-  gain.gain.exponentialRampToValueAtTime(0.7, t + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.7, t + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
 
-  osc1.connect(gain);
-  osc2.connect(gain);
-  gain.connect(audioCtx.destination);
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(audioCtx.destination);
 
-  osc1.start(t);
-  osc2.start(t);
-  osc1.stop(t + 0.24);
-  osc2.stop(t + 0.24);
-}
+      osc1.start(t);
+      osc2.start(t);
+      osc1.stop(t + 0.24);
+      osc2.stop(t + 0.24);
+    }
 
     function maybeBeep(phase, secondsLeftInt){
       if (!soundEnabled) return;
@@ -544,39 +516,26 @@
     tick();
     setInterval(tick, 250);
 
-updateBuildingButton();
-updateSoundButton();
-tick();
-setInterval(tick, 250);
+    /* Fullscreen toggle on double tap or double click */
+    let lastTap = 0;
 
-/* ---------- Fullscreen toggle on double tap / double click ---------- */
-let lastTap = 0;
+    function toggleFullscreen(){
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
 
-function toggleFullscreen(){
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(() => {});
-  } else {
-    document.exitFullscreen().catch(() => {});
-  }
-}
+    document.addEventListener("touchend", () => {
+      const now = Date.now();
+      if (now - lastTap < 300) toggleFullscreen();
+      lastTap = now;
+    });
 
-/* Touch devices */
-document.addEventListener("touchend", () => {
-  const now = Date.now();
-  if (now - lastTap < 300) {
-    toggleFullscreen();
-  }
-  lastTap = now;
-});
-
-/* Desktop */
-document.addEventListener("dblclick", () => {
-  toggleFullscreen();
-});
-</script>
-
-
-
+    document.addEventListener("dblclick", () => {
+      toggleFullscreen();
+    });
   </script>
 </body>
 </html>
