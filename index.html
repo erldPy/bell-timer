@@ -125,9 +125,11 @@
       left: 50%;
       transform: translate(-50%, -50%);
 
-      max-width: calc(100% - 56px);
-      text-align: center;
+      display: inline-block;
+      width: auto;
+      max-width: none;
 
+      text-align: center;
       font-weight: 950;
       line-height: 0.78;
       color: #facc15;
@@ -225,9 +227,7 @@
     @media (min-width: 700px) and (max-width: 1100px) and (pointer: coarse){
       .timerCard{ min-height: 300px; }
 
-      .periodRange{
-        padding-bottom: 10px;
-      }
+      .periodRange{ padding-bottom: 10px; }
 
       .bottomBar{
         margin-top: 10px;
@@ -469,17 +469,28 @@
       const timerTile = document.querySelector(".timerCard");
       if (timerTile && timerTile.classList.contains("noTimer")) return;
 
-      const maxW = Math.max(120, card.clientWidth - 56);
-      const maxH = Math.max(120, card.clientHeight - 90);
+      const maxW = Math.max(140, card.clientWidth - 56);
+      const maxH = Math.max(140, card.clientHeight - 90);
 
-      let size = Math.min(maxH * 0.78, maxW * 0.56);
-      tv.style.fontSize = `${size}px`;
+      const safeW = maxW * 0.98;
+      const safeH = maxH * 0.98;
 
-      const w = tv.scrollWidth;
-      if (w > maxW) {
-        size = size * (maxW / w);
-        tv.style.fontSize = `${size}px`;
+      let lo = 30;
+      let hi = Math.min(1200, maxH * 1.2, maxW * 1.2);
+
+      for (let i = 0; i < 14; i++) {
+        const mid = (lo + hi) / 2;
+        tv.style.fontSize = `${mid}px`;
+
+        const r = tv.getBoundingClientRect();
+        if (r.width <= safeW && r.height <= safeH) {
+          lo = mid;
+        } else {
+          hi = mid;
+        }
       }
+
+      tv.style.fontSize = `${lo}px`;
     }
 
     switchBtn.onclick = () => {
@@ -513,7 +524,7 @@
 
       el("nextBellValue").textContent = nextBellText;
 
-      fitTimerValue();
+      requestAnimationFrame(fitTimerValue);
     }
 
     function tick(){
@@ -586,8 +597,8 @@
     tick();
     setInterval(tick, 250);
 
-    window.addEventListener("resize", fitTimerValue);
-    document.addEventListener("fullscreenchange", fitTimerValue);
+    window.addEventListener("resize", () => requestAnimationFrame(fitTimerValue));
+    document.addEventListener("fullscreenchange", () => requestAnimationFrame(fitTimerValue));
 
     /* Fullscreen toggle on double tap or double click */
     let lastTap = 0;
