@@ -191,6 +191,24 @@
     .btn:active{ transform: scale(0.97); }
     .btn:hover{ filter: brightness(1.15); }
 
+@media (min-width: 700px) and (max-width: 1100px){
+  .periodRange{
+    padding-bottom: 10px;
+  }
+
+  .bottomBar{
+    margin-top: 10px;
+    padding-top: 10px;
+    gap: 8px;
+  }
+
+  .btn{
+    font-size: 14px;
+    padding: 8px 14px;
+  }
+}
+
+
     @media (max-height: 700px){
       .timerCard{ min-height: 180px; }
       .timerValue{ font-size: clamp(100px, min(34vh, 78vw), 460px); }
