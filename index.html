@@ -273,6 +273,50 @@
    }
 }
 
+@media (max-height: 520px) and (orientation: landscape){
+
+  /* Give the stack more room and reduce top tile heights */
+  .stack{
+    grid-template-rows: minmax(52px, 0.22fr) 1fr;
+    gap: 6px;
+  }
+
+  .statusTile{
+    padding: 4px 10px;
+  }
+
+  .statusValue{
+    font-size: clamp(22px, 4.2vh, 40px);
+    line-height: 1;
+  }
+
+  /* Keep label and next bell from sitting on the digits */
+  .timerLabel{ display: none; }
+  .timerSub{
+    bottom: 8px;
+    font-size: clamp(12px, 2.0vh, 16px);
+  }
+
+  /* Make the digits truly dominate the frame */
+  .timerValue{
+    top: 48%;
+    font-size: clamp(180px, 56vh, 420px);
+    line-height: 0.74;
+  }
+
+  /* Reduce extra vertical spacing below */
+  .periodRange{
+    font-size: 12px;
+    padding: 0;
+    margin: 0;
+  }
+
+  .logoBottom img{
+    height: 52px;
+  }
+}
+
+
 </style>
 </head>
 
