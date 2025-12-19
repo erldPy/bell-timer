@@ -125,7 +125,9 @@
       left: 50%;
       transform: translate(-50%, -50%);
 
-      font-size: clamp(120px, min(40vh, 70vw), 560px);
+      max-width: calc(100% - 56px);
+      text-align: center;
+
       font-weight: 950;
       line-height: 0.78;
       color: #facc15;
@@ -134,6 +136,8 @@
       margin: 0;
       z-index: 1;
       pointer-events: none;
+
+      font-variant-numeric: tabular-nums;
     }
 
     .timerSub{
@@ -191,33 +195,13 @@
     .btn:active{ transform: scale(0.97); }
     .btn:hover{ filter: brightness(1.15); }
 
-@media (min-width: 700px) and (max-width: 1100px){
-  .periodRange{
-    padding-bottom: 10px;
-  }
-
-  .bottomBar{
-    margin-top: 10px;
-    padding-top: 10px;
-    gap: 8px;
-  }
-
-  .btn{
-    font-size: 14px;
-    padding: 8px 14px;
-  }
-}
-
-
     @media (max-height: 700px){
       .timerCard{ min-height: 180px; }
-      .timerValue{ font-size: clamp(100px, min(34vh, 78vw), 460px); }
     }
 
     @media (max-height: 560px){
       .timerLabel{ display: none; }
       .timerCard{ min-height: 160px; }
-      .timerValue{ font-size: clamp(90px, min(32vh, 82vw), 420px); }
       .timerSub{ bottom: 8px; }
     }
 
@@ -229,11 +213,7 @@
       .timerLabel{ display: none; }
       .timerCard{ min-height: 140px; }
 
-      .timerValue{
-        top: 52%;
-        font-size: clamp(110px, min(48vh, 72vw), 480px);
-        line-height: 0.74;
-      }
+      .timerValue{ top: 52%; line-height: 0.74; }
 
       .periodRange{
         font-size: 12px;
@@ -242,8 +222,23 @@
       }
     }
 
-    @media (min-width: 700px) and (max-width: 1100px){
+    @media (min-width: 700px) and (max-width: 1100px) and (pointer: coarse){
       .timerCard{ min-height: 300px; }
+
+      .periodRange{
+        padding-bottom: 10px;
+      }
+
+      .bottomBar{
+        margin-top: 10px;
+        padding-top: 10px;
+        gap: 8px;
+      }
+
+      .btn{
+        font-size: 14px;
+        padding: 8px 14px;
+      }
     }
   </style>
 </head>
@@ -432,6 +427,27 @@
       beep();
     }
 
+    function fitTimerValue(){
+      const tv = el("remainingValue");
+      const card = document.querySelector(".timerCard");
+      if (!tv || !card) return;
+
+      const timerTile = document.querySelector(".timerCard");
+      if (timerTile && timerTile.classList.contains("noTimer")) return;
+
+      const maxW = Math.max(120, card.clientWidth - 56);
+      const maxH = Math.max(120, card.clientHeight - 90);
+
+      let size = Math.min(maxH * 0.78, maxW * 0.52);
+      tv.style.fontSize = `${size}px`;
+
+      const w = tv.scrollWidth;
+      if (w > maxW) {
+        size = size * (maxW / w);
+        tv.style.fontSize = `${size}px`;
+      }
+    }
+
     switchBtn.onclick = () => {
       building = building === "2" ? "1" : "2";
       localStorage.setItem("bell_building", building);
@@ -462,6 +478,8 @@
       }
 
       el("nextBellValue").textContent = nextBellText;
+
+      fitTimerValue();
     }
 
     function tick(){
@@ -533,6 +551,9 @@
     updateSoundButton();
     tick();
     setInterval(tick, 250);
+
+    window.addEventListener("resize", fitTimerValue);
+    document.addEventListener("fullscreenchange", fitTimerValue);
 
     /* Fullscreen toggle on double tap or double click */
     let lastTap = 0;
