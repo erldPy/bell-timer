@@ -487,7 +487,7 @@
 
       let shouldBeep = false;
       if (phase === "period" && secondsLeftInt <= 5) shouldBeep = true;
-      if (phase === "transtion" && secondsLeftInt <= 2) shouldBeep = true;
+      if (phase === "transition" && secondsLeftInt <= 2) shouldBeep = true;
       if (!shouldBeep) return;
 
       const key = `${phase}_${secondsLeftInt}`;
@@ -580,7 +580,7 @@
             secondsLeft,
             `Next bell at ${formatTime(blocks[i + 1].start)}`
           );
-          maybeBeep("transtion", secondsLeft);
+          maybeBeep("transition", secondsLeft);
           return;
         }
       }
