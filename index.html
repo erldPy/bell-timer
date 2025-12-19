@@ -411,9 +411,43 @@
       osc2.stop(t + 0.24);
     }
 
+    function longBeep(){
+      if (!soundEnabled) return;
+      ensureAudio();
+      if (!audioCtx) return;
+
+      const t = audioCtx.currentTime;
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = "square";
+      osc.frequency.setValueAtTime(1200, t);
+      osc.frequency.exponentialRampToValueAtTime(900, t + 0.6);
+
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.95, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.75);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(t);
+      osc.stop(t + 0.8);
+    }
+
     function maybeBeep(phase, secondsLeftInt){
       if (!soundEnabled) return;
       if (secondsLeftInt <= 0) return;
+
+      if (phase === "period" && secondsLeftInt === 120) {
+        const key = `warning_${secondsLeftInt}`;
+        if (key !== lastBeepKey) {
+          lastBeepKey = key;
+          longBeep();
+        }
+        return;
+      }
 
       let shouldBeep = false;
       if (phase === "period" && secondsLeftInt <= 5) shouldBeep = true;
