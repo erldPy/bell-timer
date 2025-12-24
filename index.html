@@ -272,6 +272,82 @@
   <script>
     const toMin = (h, m) => h * 60 + m;
 
+    const ICS_URL = "https://hsahouston.harmonytx.org/calendar/calendar_351_gmt.ics"
+
+    let closedToday = false
+    let calendarReady = false
+
+    function todayKey() {
+      const d = new Date()
+      const y = String(d.getFullYear())
+      const m = String(d.getMonth() + 1).padStart(2, "0")
+      const day = String(d.getDate()).padStart(2, "0")
+      return `${y}${m}${day}`
+    }
+
+    function parseClosedKeysFromIcs(text) {
+      const closed = new Set()
+      const lines = text.split(/\r?\n/)
+      let inEvent = false
+      let isClosedEvent = false
+      let startKey = ""
+
+      for (const raw of lines) {
+        const line = raw.trim()
+
+        if (line === "BEGIN:VEVENT") {
+          inEvent = true
+          isClosedEvent = false
+          startKey = ""
+          continue
+        }
+
+        if (line === "END:VEVENT") {
+          if (inEvent && isClosedEvent && startKey) closed.add(startKey)
+          inEvent = false
+          continue
+        }
+
+        if (!inEvent) continue
+
+        if (line.startsWith("SUMMARY:")) {
+          const s = line.slice(8).toLowerCase()
+          if (
+            s.includes("no school") ||
+            s.includes("school closed") ||
+            s.includes("holiday") ||
+            s.includes("winter break")
+          ) {
+            isClosedEvent = true
+          }
+        }
+
+        if (line.startsWith("DTSTART")) {
+          const parts = line.split(":")
+          const v = parts[1] || ""
+          const y = v.slice(0, 4)
+          const m = v.slice(4, 6)
+          const d = v.slice(6, 8)
+          if (y && m && d) startKey = `${y}${m}${d}`
+        }
+      }
+
+      return closed
+    }
+
+    async function initCalendarClosedCheck() {
+      try {
+        const res = await fetch(ICS_URL, { cache: "no-store" })
+        const text = await res.text()
+        const closedKeys = parseClosedKeysFromIcs(text)
+        closedToday = closedKeys.has(todayKey())
+      } catch (e) {
+        closedToday = false
+      } finally {
+        calendarReady = true
+      }
+    }
+
     const schedules = {
       "1": {
         "mon_thurs": [
@@ -528,6 +604,12 @@
     }
 
     function tick(){
+      if (calendarReady && closedToday) {
+        setDisplay("School closed", "", null, "No bells today")
+        lastBeepKey = ""
+        return
+      }
+
       const dayKey = getDayKey();
 
       if (dayKey === "sun") {
@@ -594,13 +676,15 @@
 
     updateBuildingButton();
     updateSoundButton();
-    tick();
-    setInterval(tick, 250);
+
+    initCalendarClosedCheck().then(() => {
+      tick();
+      setInterval(tick, 250);
+    });
 
     window.addEventListener("resize", () => requestAnimationFrame(fitTimerValue));
     document.addEventListener("fullscreenchange", () => requestAnimationFrame(fitTimerValue));
 
-    /* Fullscreen toggle on double tap or double click */
     let lastTap = 0;
 
     function toggleFullscreen(){
