@@ -65,6 +65,37 @@
       box-sizing: border-box;
     }
 
+    /*
+      Portrait only fix:
+      Use fixed inset layout so the card always matches the visible screen height,
+      independent of mobile browser address bar behavior.
+      Landscape rules stay as you already had them.
+    */
+    @media (orientation: portrait){
+      body{
+        height: 100%;
+        min-height: 100%;
+        overflow: hidden;
+      }
+
+      .wrap{
+        position: fixed;
+        inset: 0;
+        min-height: 0;
+        display: flex;
+        justify-content: center;
+        align-items: stretch;
+        padding: 12px;
+        padding-top: 16px;
+        box-sizing: border-box;
+      }
+
+      .card{
+        height: 100%;
+        max-height: none;
+      }
+    }
+
     .stack{
       display: grid;
       grid-template-rows: auto 1fr;
