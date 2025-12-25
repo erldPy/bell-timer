@@ -5,20 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bell Timer</title>
 
-  <!-- App icons -->
+  <!-- App icons for different device sizes -->
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="icon" type="image/png" sizes="94x94" href="favicon-94.png">
 
   <style>
-    /* Base font settings */
-    :root{
+    /* Global font and viewport height variable */
+    :root {
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      --appH: 100svh;
     }
 
-    /* Page-wide animated background */
-    html{
-      height: 100%;
+    /* Page background and base text color */
+    body{
+      margin: 0;
+      min-height: var(--appH);
+      color: #ffffff;
+
       background: linear-gradient(-45deg,
         #0b2a5b,
         #7c3aed,
@@ -31,24 +35,16 @@
       animation: bgMove 45s linear infinite;
     }
 
-    /* Body stays transparent so the background shows through */
-    body{
-      margin: 0;
-      height: 100%;
-      background: transparent;
-      color: #ffffff;
-    }
-
-    /* Smooth background animation */
+    /* Animated gradient movement */
     @keyframes bgMove{
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
 
-    /* Outer container that centers the card */
+    /* Outer layout container */
     .wrap{
-      min-height: 100%;
+      min-height: var(--appH);
       display: grid;
       place-items: start center;
       padding: 12px;
@@ -59,8 +55,8 @@
     /* Main application card */
     .card{
       width: min(1100px, 98vw);
-      height: calc(100vh - 24px);
-      max-height: calc(100vh - 24px);
+      height: calc(var(--appH) - 24px);
+      max-height: calc(var(--appH) - 24px);
       overflow: auto;
       -webkit-overflow-scrolling: touch;
 
@@ -75,27 +71,7 @@
       box-sizing: border-box;
     }
 
-    /* Portrait layout uses the full visible screen */
-    @media (orientation: portrait){
-      body{
-        overflow: hidden;
-      }
-
-      .wrap{
-        position: fixed;
-        inset: 0;
-        display: flex;
-        justify-content: center;
-        align-items: stretch;
-      }
-
-      .card{
-        height: 100%;
-        max-height: none;
-      }
-    }
-
-    /* Stack holding status and timer tiles */
+    /* Vertical stack for status and timer */
     .stack{
       display: grid;
       grid-template-rows: auto 1fr;
@@ -115,10 +91,15 @@
       place-items: center;
       text-align: center;
       box-sizing: border-box;
+      min-height: 0;
     }
 
-    /* Status display tile */
+    /* Status tile showing current state */
     .statusTile{
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      padding: 6px 12px;
       min-height: 56px;
     }
 
@@ -126,16 +107,18 @@
       font-size: clamp(34px, 5.5vh, 62px);
       font-weight: 950;
       line-height: 1;
+      white-space: nowrap;
     }
 
-    /* Timer display tile */
+    /* Timer tile */
     .timerCard{
       position: relative;
-      min-height: 220px;
       overflow: hidden;
       padding: 0;
+      min-height: 220px;
     }
 
+    /* Timer label at the top */
     .timerLabel{
       position: absolute;
       top: 12px;
@@ -145,6 +128,7 @@
       white-space: nowrap;
     }
 
+    /* Main countdown value */
     .timerValue{
       position: absolute;
       top: 50%;
@@ -153,10 +137,10 @@
       font-weight: 950;
       line-height: 0.78;
       color: #facc15;
-      text-shadow: 0 16px 32px rgba(0,0,0,0.78);
       white-space: nowrap;
     }
 
+    /* Secondary timer text */
     .timerSub{
       position: absolute;
       bottom: 12px;
@@ -178,13 +162,13 @@
       font-size: clamp(18px, 2.4vh, 26px);
     }
 
-    /* Period time range text */
+    /* Period time range display */
     .periodRange{
       text-align: center;
       font-size: clamp(13px, 1.9vh, 18px);
     }
 
-    /* Bottom controls */
+    /* Bottom action buttons */
     .bottomBar{
       display: flex;
       justify-content: center;
