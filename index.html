@@ -14,7 +14,7 @@
 
     body{
       margin: 0;
-      min-height: 100dvh;
+      min-height: 100svh;
       color: #ffffff;
 
       background: linear-gradient(-45deg,
@@ -36,7 +36,7 @@
     }
 
     .wrap{
-      min-height: 100dvh;
+      min-height: 100svh;
       display: grid;
       place-items: center;
       padding: 12px;
@@ -45,8 +45,8 @@
 
     .card{
       width: min(1100px, 98vw);
-      height: calc(100dvh - 24px);
-      max-height: calc(100dvh - 24px);
+      height: calc(100svh - 24px);
+      max-height: calc(100svh - 24px);
       overflow: auto;
       -webkit-overflow-scrolling: touch;
 
@@ -158,8 +158,9 @@
     .timerCard.noTimer .timerValue{ display: none; }
     .timerCard.noTimer .timerLabel{ top: 14px; }
     .timerCard.noTimer .timerSub{
-      top: 50%;
+      top: 44%;
       bottom: auto;
+      left: 50%;
       transform: translate(-50%, -50%);
       font-size: clamp(18px, 2.4vh, 26px);
       width: calc(100% - 24px);
@@ -239,6 +240,11 @@
         font-size: 14px;
         padding: 8px 14px;
       }
+    }
+
+    @media (min-height: 800px) and (max-width: 520px) {
+      .timerCard{ min-height: 180px; }
+      .stack{ grid-template-rows: auto minmax(180px, 1fr); }
     }
   </style>
 </head>
@@ -502,13 +508,13 @@
 
       gain.gain.setValueAtTime(0.0001, t);
       gain.gain.exponentialRampToValueAtTime(0.95, t + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.75);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
 
       osc.connect(gain);
       gain.connect(audioCtx.destination);
 
       osc.start(t);
-      osc.stop(t + 0.8);
+      osc.stop(t + 1.6);
     }
 
     function maybeBeep(phase, secondsLeftInt){
@@ -706,4 +712,3 @@
   </script>
 </body>
 </html>
-
