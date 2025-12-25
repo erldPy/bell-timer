@@ -5,21 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bell Timer</title>
 
+  <!-- App icons -->
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="icon" type="image/png" sizes="94x94" href="favicon-94.png">
 
   <style>
-    :root {
+    /* Base font settings */
+    :root{
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      --appH: 100svh;
     }
 
-    body{
-      margin: 0;
-      min-height: var(--appH);
-      color: #ffffff;
-
+    /* Page-wide animated background */
+    html{
+      height: 100%;
       background: linear-gradient(-45deg,
         #0b2a5b,
         #7c3aed,
@@ -32,14 +31,24 @@
       animation: bgMove 45s linear infinite;
     }
 
+    /* Body stays transparent so the background shows through */
+    body{
+      margin: 0;
+      height: 100%;
+      background: transparent;
+      color: #ffffff;
+    }
+
+    /* Smooth background animation */
     @keyframes bgMove{
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
 
+    /* Outer container that centers the card */
     .wrap{
-      min-height: var(--appH);
+      min-height: 100%;
       display: grid;
       place-items: start center;
       padding: 12px;
@@ -47,10 +56,11 @@
       box-sizing: border-box;
     }
 
+    /* Main application card */
     .card{
       width: min(1100px, 98vw);
-      height: calc(var(--appH) - 24px);
-      max-height: calc(var(--appH) - 24px);
+      height: calc(100vh - 24px);
+      max-height: calc(100vh - 24px);
       overflow: auto;
       -webkit-overflow-scrolling: touch;
 
@@ -65,29 +75,18 @@
       box-sizing: border-box;
     }
 
-    /*
-      Portrait only fix:
-      Use fixed inset layout so the card always matches the visible screen height,
-      independent of mobile browser address bar behavior.
-      Landscape rules stay as you already had them.
-    */
+    /* Portrait layout uses the full visible screen */
     @media (orientation: portrait){
       body{
-        height: 100%;
-        min-height: 100%;
         overflow: hidden;
       }
 
       .wrap{
         position: fixed;
         inset: 0;
-        min-height: 0;
         display: flex;
         justify-content: center;
         align-items: stretch;
-        padding: 12px;
-        padding-top: 16px;
-        box-sizing: border-box;
       }
 
       .card{
@@ -96,6 +95,7 @@
       }
     }
 
+    /* Stack holding status and timer tiles */
     .stack{
       display: grid;
       grid-template-rows: auto 1fr;
@@ -103,6 +103,7 @@
       min-height: 0;
     }
 
+    /* Shared tile styling */
     .tile{
       background: linear-gradient(180deg, #1f2933, #111827);
       border-radius: 18px;
@@ -114,32 +115,25 @@
       place-items: center;
       text-align: center;
       box-sizing: border-box;
-      min-height: 0;
     }
 
+    /* Status display tile */
     .statusTile{
-      display: grid;
-      align-content: center;
-      justify-items: center;
-      padding: 6px 12px;
       min-height: 56px;
     }
 
     .statusValue{
       font-size: clamp(34px, 5.5vh, 62px);
       font-weight: 950;
-      color: #ffffff;
-      text-shadow: 0 6px 16px rgba(0,0,0,0.65);
       line-height: 1;
-      white-space: nowrap;
     }
 
+    /* Timer display tile */
     .timerCard{
       position: relative;
+      min-height: 220px;
       overflow: hidden;
       padding: 0;
-      display: block;
-      min-height: 220px;
     }
 
     .timerLabel{
@@ -148,9 +142,6 @@
       left: 50%;
       transform: translateX(-50%);
       font-size: clamp(12px, 1.6vh, 16px);
-      margin: 0;
-      z-index: 3;
-      pointer-events: none;
       white-space: nowrap;
     }
 
@@ -159,22 +150,11 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-
-      display: inline-block;
-      width: auto;
-      max-width: none;
-
-      text-align: center;
       font-weight: 950;
       line-height: 0.78;
       color: #facc15;
       text-shadow: 0 16px 32px rgba(0,0,0,0.78);
       white-space: nowrap;
-      margin: 0;
-      z-index: 1;
-      pointer-events: none;
-
-      font-variant-numeric: tabular-nums;
     }
 
     .timerSub{
@@ -183,104 +163,46 @@
       left: 50%;
       transform: translateX(-50%);
       font-size: clamp(12px, 1.6vh, 16px);
-      margin: 0;
-      text-align: center;
       width: calc(100% - 24px);
-      z-index: 3;
-      pointer-events: none;
     }
 
-    .timerCard.noTimer .timerValue{ display: none; }
-    .timerCard.noTimer .timerLabel{ top: 14px; }
+    /* Layout when no countdown is active */
+    .timerCard.noTimer .timerValue{
+      display: none;
+    }
+
     .timerCard.noTimer .timerSub{
       top: 44%;
       bottom: auto;
-      left: 50%;
       transform: translate(-50%, -50%);
       font-size: clamp(18px, 2.4vh, 26px);
-      width: calc(100% - 24px);
     }
 
+    /* Period time range text */
     .periodRange{
       text-align: center;
       font-size: clamp(13px, 1.9vh, 18px);
-      color: #ffffff;
-      padding: 2px 10px;
-      overflow-wrap: anywhere;
     }
 
+    /* Bottom controls */
     .bottomBar{
       display: flex;
       justify-content: center;
       gap: 10px;
-      flex-wrap: wrap;
       padding-top: 6px;
       padding-bottom: max(6px, env(safe-area-inset-bottom));
       border-top: 1px solid rgba(255,255,255,0.20);
     }
 
     .btn{
-      font-size: clamp(14px, 2.0vh, 18px);
+      font-size: clamp(14px, 2vh, 18px);
       padding: 10px 18px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.55);
-      cursor: pointer;
-      font-weight: 800;
       background: linear-gradient(180deg, #1f2933, #111827);
       color: #ffffff;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.50);
-    }
-
-    .btn:active{ transform: scale(0.97); }
-    .btn:hover{ filter: brightness(1.15); }
-
-    @media (max-height: 700px){
-      .timerCard{ min-height: 180px; }
-    }
-
-    @media (max-height: 560px){
-      .timerLabel{ display: none; }
-      .timerCard{ min-height: 160px; }
-      .timerSub{ bottom: 8px; }
-    }
-
-    @media (max-height: 520px) and (orientation: landscape){
-      .stack{ gap: 6px; }
-      .statusTile{ padding: 4px 10px; }
-      .statusValue{ font-size: clamp(22px, 4.2vh, 40px); }
-
-      .timerLabel{ display: none; }
-      .timerCard{ min-height: 140px; }
-
-      .timerValue{ top: 52%; line-height: 0.74; }
-
-      .periodRange{
-        font-size: 12px;
-        padding: 0;
-        margin: 0;
-      }
-    }
-
-    @media (min-width: 700px) and (max-width: 1100px) and (pointer: coarse){
-      .timerCard{ min-height: 300px; }
-
-      .periodRange{ padding-bottom: 10px; }
-
-      .bottomBar{
-        margin-top: 10px;
-        padding-top: 10px;
-        gap: 8px;
-      }
-
-      .btn{
-        font-size: 14px;
-        padding: 8px 14px;
-      }
-    }
-
-    @media (min-height: 800px) and (max-width: 520px) {
-      .timerCard{ min-height: 180px; }
-      .stack{ grid-template-rows: auto minmax(180px, 1fr); }
+      font-weight: 800;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -310,449 +232,5 @@
 
     </div>
   </div>
-
-  <script>
-    const toMin = (h, m) => h * 60 + m;
-
-    function setViewportVars(){
-      const h = window.innerHeight;
-      document.documentElement.style.setProperty("--appH", `${h}px`);
-    }
-    setViewportVars();
-    window.addEventListener("resize", setViewportVars);
-    window.addEventListener("orientationchange", setViewportVars);
-
-    const ICS_URL = "calendar.ics"
-    let closedToday = false
-    let calendarReady = false
-
-    function todayKey() {
-      const d = new Date()
-      const y = String(d.getFullYear())
-      const m = String(d.getMonth() + 1).padStart(2, "0")
-      const day = String(d.getDate()).padStart(2, "0")
-      return `${y}${m}${day}`
-    }
-
-    function parseClosedKeysFromIcs(text) {
-      const closed = new Set()
-      const lines = text.split(/\r?\n/)
-      let inEvent = false
-      let isClosedEvent = false
-      let startKey = ""
-
-      for (const raw of lines) {
-        const line = raw.trim()
-
-        if (line === "BEGIN:VEVENT") {
-          inEvent = true
-          isClosedEvent = false
-          startKey = ""
-          continue
-        }
-
-        if (line === "END:VEVENT") {
-          if (inEvent && isClosedEvent && startKey) closed.add(startKey)
-          inEvent = false
-          continue
-        }
-
-        if (!inEvent) continue
-
-        if (line.startsWith("SUMMARY:")) {
-          const s = line.slice(8).toLowerCase()
-          if (
-            s.includes("no school") ||
-            s.includes("school closed") ||
-            s.includes("holiday") ||
-            s.includes("winter break")
-          ) {
-            isClosedEvent = true
-          }
-        }
-
-        if (line.startsWith("DTSTART")) {
-          const parts = line.split(":")
-          const v = parts[1] || ""
-          const y = v.slice(0, 4)
-          const m = v.slice(4, 6)
-          const d = v.slice(6, 8)
-          if (y && m && d) startKey = `${y}${m}${d}`
-        }
-      }
-
-      return closed
-    }
-
-    async function initCalendarClosedCheck() {
-      try {
-        const res = await fetch(ICS_URL, { cache: "no-store" })
-        const text = await res.text()
-        const closedKeys = parseClosedKeysFromIcs(text)
-        closedToday = closedKeys.has(todayKey())
-      } catch (e) {
-        closedToday = false
-      } finally {
-        calendarReady = true
-      }
-    }
-
-    const schedules = {
-      "1": {
-        "mon_thurs": [
-          { start: toMin(7,36), end: toMin(8,33), period: 1 },
-          { start: toMin(8,37), end: toMin(9,34), period: 2 },
-          { start: toMin(9,38), end: toMin(10,35), period: 3 },
-          { start: toMin(10,39), end: toMin(11,36), period: 4 },
-          { start: toMin(11,40), end: toMin(12,10), period: 5 },
-          { start: toMin(12,14), end: toMin(13,11), period: 6 },
-          { start: toMin(13,15), end: toMin(14,12), period: 7 },
-          { start: toMin(14,16), end: toMin(15,13), period: 8 },
-          { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
-          { start: toMin(15,45), end: toMin(17,0),  label: "After-school Programs" }
-        ],
-        "fri": [
-          { start: toMin(7,36), end: toMin(8,14), period: 1 },
-          { start: toMin(8,18), end: toMin(8,56), period: 2 },
-          { start: toMin(9,0),  end: toMin(9,38), period: 3 },
-          { start: toMin(9,42), end: toMin(10,20), period: 4 },
-          { start: toMin(10,24), end: toMin(10,54), period: 5 },
-          { start: toMin(10,58), end: toMin(11,36), period: 6 },
-          { start: toMin(11,40), end: toMin(12,18), period: 7 },
-          { start: toMin(12,22), end: toMin(13,0),  period: 8 },
-          { start: toMin(13,0),  end: toMin(13,30), label: "After School" }
-        ],
-        "sat": [
-          { start: toMin(9,0), end: toMin(12,0), label: "Tutorials" }
-        ]
-      },
-      "2": {
-        "mon_thurs": [
-          { start: toMin(7,36), end: toMin(8,33), period: 1 },
-          { start: toMin(8,37), end: toMin(9,34), period: 2 },
-          { start: toMin(9,38), end: toMin(10,35), period: 3 },
-          { start: toMin(10,39), end: toMin(11,36), period: 4 },
-          { start: toMin(11,40), end: toMin(12,37), period: 5 },
-          { start: toMin(12,41), end: toMin(13,11), period: 6 },
-          { start: toMin(13,15), end: toMin(14,12), period: 7 },
-          { start: toMin(14,16), end: toMin(15,13), period: 8 },
-          { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
-          { start: toMin(15,45), end: toMin(17,0),  label: "After-school Programs" }
-        ],
-        "fri": [
-          { start: toMin(7,36), end: toMin(8,14), period: 1 },
-          { start: toMin(8,18), end: toMin(8,56), period: 2 },
-          { start: toMin(9,0),  end: toMin(9,38), period: 3 },
-          { start: toMin(9,42), end: toMin(10,20), period: 4 },
-          { start: toMin(10,24), end: toMin(11,2),  period: 5 },
-          { start: toMin(11,6),  end: toMin(11,36), period: 6 },
-          { start: toMin(11,40), end: toMin(12,18), period: 7 },
-          { start: toMin(12,22), end: toMin(13,0),  period: 8 },
-          { start: toMin(13,0),  end: toMin(13,30), label: "After School" }
-        ],
-        "sat": [
-          { start: toMin(9,0), end: toMin(12,0), label: "Tutorials" }
-        ]
-      }
-    };
-
-    const el = (id) => document.getElementById(id);
-    const switchBtn = el("switchBtn");
-    const soundBtn = el("soundBtn");
-
-    let building = localStorage.getItem("bell_building") || "2";
-    let soundEnabled = (localStorage.getItem("bell_sound_enabled") || "1") === "1";
-
-    let audioCtx = null;
-    let lastBeepKey = "";
-
-    function pad(n){ return String(n).padStart(2, "0"); }
-
-    function formatTime(mins){
-      const h = Math.floor(mins / 60);
-      const m = mins % 60;
-      const ampm = h >= 12 ? "PM" : "AM";
-      const hh = ((h + 11) % 12) + 1;
-      return `${hh}:${pad(m)} ${ampm}`;
-    }
-
-    function getDayKey(){
-      const d = new Date().getDay();
-      if (d === 6) return "sat";
-      if (d === 5) return "fri";
-      if (d === 0) return "sun";
-      return "mon_thurs";
-    }
-
-    function nowMinutes(){
-      const n = new Date();
-      return n.getHours() * 60 + n.getMinutes() + n.getSeconds() / 60;
-    }
-
-    function updateBuildingButton(){
-      switchBtn.textContent = building === "2" ? "Show Building 1" : "Show Building 2";
-    }
-
-    function updateSoundButton(){
-      soundBtn.textContent = soundEnabled ? "Sound On" : "Sound Off";
-    }
-
-    function ensureAudio(){
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === "suspended") audioCtx.resume();
-    }
-
-    function beep(){
-      if (!soundEnabled) return;
-      ensureAudio();
-      if (!audioCtx) return;
-
-      const t = audioCtx.currentTime;
-
-      const osc1 = audioCtx.createOscillator();
-      const osc2 = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-
-      osc1.type = "square";
-      osc2.type = "sine";
-
-      osc1.frequency.setValueAtTime(1760, t);
-      osc2.frequency.setValueAtTime(2093, t);
-
-      osc1.frequency.exponentialRampToValueAtTime(1320, t + 0.08);
-      osc2.frequency.exponentialRampToValueAtTime(1568, t + 0.08);
-
-      gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.exponentialRampToValueAtTime(0.7, t + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
-
-      osc1.connect(gain);
-      osc2.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      osc1.start(t);
-      osc2.start(t);
-      osc1.stop(t + 0.24);
-      osc2.stop(t + 0.24);
-    }
-
-    function longBeep(){
-      if (!soundEnabled) return;
-      ensureAudio();
-      if (!audioCtx) return;
-
-      const t = audioCtx.currentTime;
-
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-
-      osc.type = "square";
-      osc.frequency.setValueAtTime(1200, t);
-      osc.frequency.exponentialRampToValueAtTime(900, t + 0.6);
-
-      gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.exponentialRampToValueAtTime(0.95, t + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      osc.start(t);
-      osc.stop(t + 1.6);
-    }
-
-    function maybeBeep(phase, secondsLeftInt){
-      if (!soundEnabled) return;
-      if (secondsLeftInt <= 0) return;
-
-      if (phase === "period" && secondsLeftInt === 120) {
-        const key = `warning_${secondsLeftInt}`;
-        if (key !== lastBeepKey) {
-          lastBeepKey = key;
-          longBeep();
-        }
-        return;
-      }
-
-      let shouldBeep = false;
-      if (phase === "period" && secondsLeftInt <= 5) shouldBeep = true;
-      if (phase === "transition" && secondsLeftInt <= 2) shouldBeep = true;
-      if (!shouldBeep) return;
-
-      const key = `${phase}_${secondsLeftInt}`;
-      if (key === lastBeepKey) return;
-
-      lastBeepKey = key;
-      beep();
-    }
-
-    function fitTimerValue(){
-      const tv = el("remainingValue");
-      const card = document.querySelector(".timerCard");
-      if (!tv || !card) return;
-
-      const timerTile = document.querySelector(".timerCard");
-      if (timerTile && timerTile.classList.contains("noTimer")) return;
-
-      const maxW = Math.max(140, card.clientWidth - 56);
-      const maxH = Math.max(140, card.clientHeight - 90);
-
-      const safeW = maxW * 0.98;
-      const safeH = maxH * 0.98;
-
-      let lo = 30;
-      let hi = Math.min(1200, maxH * 1.2, maxW * 1.2);
-
-      for (let i = 0; i < 14; i++) {
-        const mid = (lo + hi) / 2;
-        tv.style.fontSize = `${mid}px`;
-
-        const r = tv.getBoundingClientRect();
-        if (r.width <= safeW && r.height <= safeH) {
-          lo = mid;
-        } else {
-          hi = mid;
-        }
-      }
-
-      tv.style.fontSize = `${lo}px`;
-    }
-
-    switchBtn.onclick = () => {
-      building = building === "2" ? "1" : "2";
-      localStorage.setItem("bell_building", building);
-      updateBuildingButton();
-      tick();
-    };
-
-    soundBtn.onclick = () => {
-      soundEnabled = !soundEnabled;
-      localStorage.setItem("bell_sound_enabled", soundEnabled ? "1" : "0");
-      if (soundEnabled) ensureAudio();
-      updateSoundButton();
-    };
-
-    function setDisplay(statusLabel, rangeText, secondsLeft, nextBellText){
-      el("statusValue").textContent = statusLabel;
-      el("periodRange").textContent = rangeText;
-
-      const timerTile = document.querySelector(".timerCard");
-
-      if (secondsLeft === null || secondsLeft === undefined) {
-        timerTile.classList.add("noTimer");
-        el("remainingValue").textContent = "";
-      } else {
-        timerTile.classList.remove("noTimer");
-        const s = Math.max(0, Math.floor(secondsLeft));
-        el("remainingValue").textContent = `${Math.floor(s / 60)}:${pad(s % 60)}`;
-      }
-
-      el("nextBellValue").textContent = nextBellText;
-
-      requestAnimationFrame(fitTimerValue);
-    }
-
-    function tick(){
-      if (calendarReady && closedToday) {
-        setDisplay("School closed", "", null, "No bells today")
-        lastBeepKey = ""
-        return
-      }
-
-      const dayKey = getDayKey();
-
-      if (dayKey === "sun") {
-        setDisplay("No School", "Sunday", null, "No bells today");
-        lastBeepKey = "";
-        return;
-      }
-
-      const blocks = schedules[building][dayKey];
-      const nowM = nowMinutes();
-
-      for (let i = 0; i < blocks.length; i++) {
-        const b = blocks[i];
-        if (nowM >= b.start && nowM < b.end) {
-          const secondsLeft = Math.max(0, Math.floor((b.end - nowM) * 60));
-          const statusText = b.label ? b.label : `P ${b.period}`;
-          setDisplay(
-            statusText,
-            `${formatTime(b.start)} to ${formatTime(b.end)}`,
-            secondsLeft,
-            `Next bell at ${formatTime(b.end)}`
-          );
-          maybeBeep("period", secondsLeft);
-          return;
-        }
-      }
-
-      if (nowM < blocks[0].start) {
-        const secondsLeft = Math.max(0, Math.floor((blocks[0].start - nowM) * 60));
-        setDisplay(
-          "Before School",
-          `First bell at ${formatTime(blocks[0].start)}`,
-          secondsLeft,
-          `Next bell at ${formatTime(blocks[0].start)}`
-        );
-        lastBeepKey = "";
-        return;
-      }
-
-      for (let i = 0; i < blocks.length - 1; i++) {
-        if (nowM >= blocks[i].end && nowM < blocks[i + 1].start) {
-          const secondsLeft = Math.max(0, Math.floor((blocks[i + 1].start - nowM) * 60));
-          const nextName = blocks[i + 1].label ? blocks[i + 1].label : `P ${blocks[i + 1].period}`;
-          setDisplay(
-            "Transition",
-            `Next: ${nextName}`,
-            secondsLeft,
-            `Next bell at ${formatTime(blocks[i + 1].start)}`
-          );
-          maybeBeep("transition", secondsLeft);
-          return;
-        }
-      }
-
-      setDisplay(
-        "No Classes or Activities",
-        "",
-        null,
-        `Next school day starts at ${formatTime(blocks[0].start)}`
-      );
-
-      lastBeepKey = "";
-    }
-
-    updateBuildingButton();
-    updateSoundButton();
-
-    initCalendarClosedCheck().then(() => {
-      tick();
-      setInterval(tick, 250);
-    });
-
-    window.addEventListener("resize", () => requestAnimationFrame(fitTimerValue));
-    document.addEventListener("fullscreenchange", () => requestAnimationFrame(fitTimerValue));
-
-    let lastTap = 0;
-
-    function toggleFullscreen(){
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      } else {
-        document.exitFullscreen().catch(() => {});
-      }
-    }
-
-    document.addEventListener("touchend", () => {
-      const now = Date.now();
-      if (now - lastTap < 300) toggleFullscreen();
-      lastTap = now;
-    });
-
-    document.addEventListener("dblclick", () => {
-      toggleFullscreen();
-    });
-  </script>
 </body>
 </html>
