@@ -1,140 +1,66 @@
-# Bell Timer
+Bell Timer
 
-A single file, mobile friendly web app that displays the current bell schedule status and a live countdown timer for two different building schedules. It can also optionally mute or enable warning sounds and can automatically detect school closed days from a local `calendar.ics` file.
+Free to use, copy, and fork.
+You are welcome to copy this project or fork it and adapt it for your own school. Just bring your own bell schedule and calendar file and update them as needed.
 
-## Main features
+A single file, mobile friendly web app that shows the current bell schedule status and a live countdown timer. It supports two building schedules, optional bell sounds, fullscreen mode, and automatic school closed detection using a local calendar.ics file.
 
-### Live bell status and countdown
-The app continuously figures out what block you are currently in and shows
+Features
 
-- A big status label like `P 3`, `Transition`, `Before School`, `Dismissal`, `After school programs`, etc
-- A live countdown timer for time remaining in the current block
-- A message showing the next bell time
-- A time range line like `7:36 AM to 8:33 AM`
+Live status and countdown
+Shows the current block such as P 3, Transition, Before School, Dismissal, etc, with a real time countdown, next bell time, and active time range.
 
-It updates frequently using `setInterval(tick, 250)` so the display feels real time.
+Two building schedules
+Toggle between Building 1 and Building 2 with one button. The selected building is saved in localStorage.
 
-### Two building schedules with one tap switch
-There are two separate bell schedules stored in the `schedules` object under keys `"1"` and `"2"`.
+School closed detection
+Reads calendar.ics and automatically shows “School closed” with no bells on days marked as no school, holidays, or breaks.
 
-- Building selection is toggled with the `Show Building 1` or `Show Building 2` button
-- The choice is saved in `localStorage` under `bell_building`, so the app remembers your last selection after refresh
+Smart time handling
+Handles Sundays, before school, transitions, and after school hours without confusing timers.
 
-### Calendar based school closed detection with `calendar.ics`
-The app can automatically show “School closed” and disable bell behavior for days listed as closed in `calendar.ics`.
+Optional bell sounds
+Sound can be turned on or off and is generated using the Web Audio API.
 
-How it works
+Long warning tone at 2 minutes remaining
 
-- `ICS_URL` is set to `calendar.ics`
-- On load, `initCalendarClosedCheck()` fetches the file with `cache: "no-store"`
-- `parseClosedKeysFromIcs()` scans each `VEVENT`
-- If an event `SUMMARY` contains words like
-  - `no school`
-  - `school closed`
-  - `holiday`
-  - `winter break`
-  then it marks that event as a closure
-- It reads the event date from `DTSTART` and compares it to today using `todayKey()` formatted like `YYYYMMDD`
-- If today is a closed day, the UI becomes
-  - Status `School closed`
-  - No timer
-  - Message `No bells today`
+Short tones in the final seconds of periods and transitions
 
-If the fetch fails, it safely falls back to normal operation.
+Auto scaling timer text
+Countdown digits automatically resize to fit the screen.
 
-### Sunday and off hours handling
-The app has special cases that avoid confusing timers
+Fullscreen support
+Double click on desktop or double tap on mobile toggles fullscreen for wall displays.
 
-- Sunday always shows `No School` and no timer
-- Before the first block it shows `Before School` and counts down to first bell
-- Between blocks it shows `Transition` and counts down to the next block start
-- After the last block it shows `No Classes or Activities` and shows the next day start time
+Mobile friendly layout
+Responsive design with smooth scrolling and adaptive sizing for phones, tablets, and kiosks.
 
-### Optional bell sounds with warning logic
-Sound is controlled by the `Sound On` or `Sound Off` button.
+Files
 
-- Your preference is stored in `localStorage` under `bell_sound_enabled`
-- Sounds are generated with the Web Audio API, no external audio files needed
-- `maybeBeep()` controls timing
-  - Long warning beep at 2 minutes remaining during a period
-  - Short beeps in the last 5 seconds of a period
-  - Short beeps in the last 2 seconds of a transition
-- `lastBeepKey` prevents duplicate beeps from repeated ticks
+index.html
+Contains all HTML, CSS, and JavaScript
 
-### Auto fit timer text to screen size
-The timer digits automatically scale to fill the available space without overflowing.
+calendar.ics
+Optional file used to detect school closed days
 
-- `fitTimerValue()` binary searches for a font size that fits inside the timer card
-- It runs on every update via `requestAnimationFrame`
-- It also reruns on window resize and fullscreen changes
+favicon-16.png, favicon-32.png, favicon-94.png
+Browser and shortcut icons
 
-### Fullscreen toggle by double tap or double click
-The page can enter or exit fullscreen for wall displays.
+Customization
 
-- Desktop: double click toggles fullscreen
-- Mobile: double tap within 300 ms toggles fullscreen
+Bell schedules
+Edit the schedules object to match your school’s bell times and labels.
 
-### Mobile friendly layout and smooth scrolling
-The UI is designed to behave well on phones and tablets
+Calendar
+Replace calendar.ics with your own school calendar.
 
-- Uses responsive font sizes with `clamp()`
-- Uses viewport based sizing with `100dvh`
-- Card content can scroll with `-webkit-overflow-scrolling: touch`
-- Several `@media` rules adjust layout for short screens and landscape mode
+Closed day keywords
+Update parseClosedKeysFromIcs() to match your district’s calendar wording.
 
-## Files
+Notes
 
-- `index.html`  
-  Contains all HTML, CSS, and JavaScript for the app
+The calendar parser is intentionally simple and checks only SUMMARY and DTSTART
 
-- `calendar.ics`  
-  Optional local iCalendar file used to detect school closed days
+Closed days are treated as single day events
 
-- `favicon-16.png`, `favicon-32.png`, `favicon-94.png`  
-  Icons for browser tabs and shortcuts
-
-## Customizing the bell schedules
-
-Edit the `schedules` object.
-
-Each entry is a block like
-
-- `start` and `end` are minutes from midnight, built with `toMin(h, m)`
-- Use either
-  - `period: <number>` for numbered class periods
-  - `label: "<text>"` for named blocks like Dismissal or After School
-
-Example block
-
-```js
-{ start: toMin(7,36), end: toMin(8,33), period: 1 }
-
-Customizing calendar closed keywords
-
-Edit parseClosedKeysFromIcs().
-
-It currently treats an event as a closure if the SUMMARY includes any of
-
-no school
-
-school closed
-
-holiday
-
-winter break
-
-Add or remove keywords there to match your district calendar naming.
-
-Notes and limitations
-
-The calendar.ics parser is intentionally simple and only looks at SUMMARY and DTSTART
-
-It treats closures as single day events based on DTSTART
-
-It assumes the page is served from a web server so fetch("calendar.ics") works
-
-If opened directly from the filesystem, browser security settings may block fetch depending on browser
-
-
-
-
+The app should be served from a web server so fetch("calendar.ics") works correctly
