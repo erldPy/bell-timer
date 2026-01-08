@@ -600,44 +600,6 @@
       osc.stop(t + 2.5);
     }
 
-    /* Bell like sound (Option B) integrated without changing the existing call sites */
-    function bellTone(duration = 1.2, baseFreq = 880, endFreq = 660){
-      if (!soundEnabled) return;
-      ensureAudio();
-      if (!audioCtx) return;
-
-      const t = audioCtx.currentTime;
-
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(baseFreq, t);
-      osc.frequency.exponentialRampToValueAtTime(endFreq, t + duration);
-
-      gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.exponentialRampToValueAtTime(0.9, t + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      osc.start(t);
-      osc.stop(t + duration);
-    }
-
-    /* Use bellTone in place of the existing beep sounds without changing the rest of the app */
-    const _oldBeep = beep;
-    const _oldLongBeep = longBeep;
-
-    function beep(){
-      bellTone(0.35, 1046, 784);
-    }
-
-    function longBeep(){
-      bellTone(2.5, 880, 660);
-    }
-
     /* Decide whether a sound should play for the current moment */
     function maybeBeep(phase, secondsLeftInt){
       if (!soundEnabled) return;
