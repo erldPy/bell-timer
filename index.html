@@ -5,19 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bell Timer</title>
 
-  <!-- Small icons used by browsers, home screen shortcuts, and tabs -->
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="icon" type="image/png" sizes="94x94" href="favicon-94.png">
 
   <style>
-    /* App wide defaults and a single height variable used in layout calculations */
     :root {
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       --appH: 100svh;
     }
 
-    /* The animated background is applied to the root page element */
     html{
       height: 100%;
       background: linear-gradient(-45deg,
@@ -32,7 +29,6 @@
       animation: bgMove 45s linear infinite;
     }
 
-    /* Body stays transparent so the page background shows through */
     body{
       margin: 0;
       min-height: var(--appH);
@@ -41,14 +37,12 @@
       color: #ffffff;
     }
 
-    /* Slow, gentle movement for the gradient */
     @keyframes bgMove{
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
 
-    /* Centers the card and adds a little breathing room around it */
     .wrap{
       min-height: var(--appH);
       display: grid;
@@ -58,7 +52,6 @@
       box-sizing: border-box;
     }
 
-    /* The main “glass” card that holds everything */
     .card{
       width: min(1100px, 98vw);
       height: calc(var(--appH) - 24px);
@@ -77,7 +70,6 @@
       box-sizing: border-box;
     }
 
-    /* Portrait mode uses a full screen wrapper so the card always fits the visible area */
     @media (orientation: portrait){
       html, body{
         height: 100%;
@@ -106,7 +98,6 @@
       }
     }
 
-    /* Stack holds the status tile on top and the timer tile below */
     .stack{
       display: grid;
       grid-template-rows: auto 1fr;
@@ -114,7 +105,6 @@
       min-height: 0;
     }
 
-    /* Shared tile styling */
     .tile{
       background: linear-gradient(180deg, #1f2933, #111827);
       border-radius: 18px;
@@ -129,7 +119,6 @@
       min-height: 0;
     }
 
-    /* Top tile showing what is happening right now */
     .statusTile{
       display: grid;
       align-content: center;
@@ -147,7 +136,6 @@
       white-space: nowrap;
     }
 
-    /* Timer tile uses absolute positioning for label, number, and helper text */
     .timerCard{
       position: relative;
       overflow: hidden;
@@ -204,7 +192,6 @@
       pointer-events: none;
     }
 
-    /* Alternate layout when there is no countdown to show */
     .timerCard.noTimer .timerValue{ display: none; }
     .timerCard.noTimer .timerLabel{ top: 14px; }
     .timerCard.noTimer .timerSub{
@@ -216,7 +203,6 @@
       width: calc(100% - 24px);
     }
 
-    /* Text under the tiles that shows the active time range */
     .periodRange{
       text-align: center;
       font-size: clamp(13px, 1.9vh, 18px);
@@ -225,7 +211,6 @@
       overflow-wrap: anywhere;
     }
 
-    /* Bottom controls, with a little extra room on phones with a home indicator */
     .bottomBar{
       display: flex;
       justify-content: center;
@@ -251,7 +236,6 @@
     .btn:active{ transform: scale(0.97); }
     .btn:hover{ filter: brightness(1.15); }
 
-    /* Small height adjustments for shorter screens */
     @media (max-height: 700px){
       .timerCard{ min-height: 180px; }
     }
@@ -262,7 +246,6 @@
       .timerSub{ bottom: 8px; }
     }
 
-    /* Compact spacing when the device is short and in landscape */
     @media (max-height: 520px) and (orientation: landscape){
       .stack{ gap: 6px; }
       .statusTile{ padding: 4px 10px; }
@@ -280,7 +263,6 @@
       }
     }
 
-    /* Slightly bigger timer on medium sized touch devices */
     @media (min-width: 700px) and (max-width: 1100px) and (pointer: coarse){
       .timerCard{ min-height: 300px; }
 
@@ -298,7 +280,6 @@
       }
     }
 
-    /* A little extra balance for tall, narrow phones */
     @media (min-height: 800px) and (max-width: 520px) {
       .timerCard{ min-height: 180px; }
       .stack{ grid-template-rows: auto minmax(180px, 1fr); }
@@ -333,10 +314,8 @@
   </div>
 
   <script>
-    /* Small helper to convert hours and minutes into minutes since midnight */
     const toMin = (h, m) => h * 60 + m;
 
-    /* Keep a CSS variable in sync with the visible viewport height */
     function setViewportVars(){
       const h = window.innerHeight;
       document.documentElement.style.setProperty("--appH", `${h}px`);
@@ -345,12 +324,10 @@
     window.addEventListener("resize", setViewportVars);
     window.addEventListener("orientationchange", setViewportVars);
 
-    /* Calendar file used to mark closed days */
     const ICS_URL = "calendar.ics"
     let closedToday = false
     let calendarReady = false
 
-    /* Format today as YYYYMMDD for quick comparisons */
     function todayKey() {
       const d = new Date()
       const y = String(d.getFullYear())
@@ -359,7 +336,6 @@
       return `${y}${m}${day}`
     }
 
-    /* Scan the ICS text and collect dates that represent closed days */
     function parseClosedKeysFromIcs(text) {
       const closed = new Set()
       const lines = text.split(/\r?\n/)
@@ -410,7 +386,6 @@
       return closed
     }
 
-    /* Fetch the calendar file and determine whether today is marked closed */
     async function initCalendarClosedCheck() {
       try {
         const res = await fetch(ICS_URL, { cache: "no-store" })
@@ -424,7 +399,6 @@
       }
     }
 
-    /* Bell schedules (two building options) */
     const schedules = {
       "1": {
         "mon_thurs": [
@@ -484,22 +458,18 @@
       }
     };
 
-    /* Quick element lookup */
     const el = (id) => document.getElementById(id);
     const switchBtn = el("switchBtn");
     const soundBtn = el("soundBtn");
 
-    /* Persisted settings */
     let building = localStorage.getItem("bell_building") || "2";
     let soundEnabled = (localStorage.getItem("bell_sound_enabled") || "1") === "1";
 
-    /* Audio state */
     let audioCtx = null;
     let lastBeepKey = "";
 
     function pad(n){ return String(n).padStart(2, "0"); }
 
-    /* Display helper for “7:36 AM” style output */
     function formatTime(mins){
       const h = Math.floor(mins / 60);
       const m = mins % 60;
@@ -508,7 +478,6 @@
       return `${hh}:${pad(m)} ${ampm}`;
     }
 
-    /* Map JS day index into our schedule keys */
     function getDayKey(){
       const d = new Date().getDay();
       if (d === 6) return "sat";
@@ -517,29 +486,51 @@
       return "mon_thurs";
     }
 
-    /* Current time as minutes since midnight (including seconds) */
     function nowMinutes(){
       const n = new Date();
       return n.getHours() * 60 + n.getMinutes() + n.getSeconds() / 60;
     }
 
-    /* Update the building toggle button label */
     function updateBuildingButton(){
       switchBtn.textContent = building === "2" ? "Show Building 1" : "Show Building 2";
     }
 
-    /* Update the sound toggle button label */
     function updateSoundButton(){
       soundBtn.textContent = soundEnabled ? "Sound On" : "Sound Off";
     }
 
-    /* Create or resume the audio context after user interaction */
     function ensureAudio(){
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === "suspended") audioCtx.resume();
     }
 
-    /* Short “tick” sound used for the final seconds */
+    /* This fixes the common issue where browsers block audio until the first user gesture */
+    function unlockAudioOnce(){
+      ensureAudio();
+      if (!audioCtx) return;
+
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(440, t);
+
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(t);
+      osc.stop(t + 0.03);
+    }
+
+    if (soundEnabled) {
+      window.addEventListener("pointerdown", unlockAudioOnce, { once: true });
+      window.addEventListener("touchstart", unlockAudioOnce, { once: true, passive: true });
+    }
+
     function beep(){
       if (!soundEnabled) return;
       ensureAudio();
@@ -574,35 +565,32 @@
       osc2.stop(t + 0.24);
     }
 
-    /* Longer warning tone (used at the 2 minute mark) */
+    /* Lower pitched and more bell like long warning tone */
     function longBeep(){
-  	if (!soundEnabled) return;
-  	ensureAudio();
-  	if (!audioCtx) return;
+      if (!soundEnabled) return;
+      ensureAudio();
+      if (!audioCtx) return;
 
-  	const t = audioCtx.currentTime;
+      const t = audioCtx.currentTime;
 
-  	const osc = audioCtx.createOscillator();
-  	const gain = audioCtx.createGain();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
 
-  	// Bell like tone: low sine wave with gentle pitch drop
-  	osc.type = "sine";
-  	osc.frequency.setValueAtTime(620, t);
-  	osc.frequency.exponentialRampToValueAtTime(440, t + 4.0);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(620, t);
+      osc.frequency.exponentialRampToValueAtTime(440, t + 4.0);
 
-  	// Slow attack and long natural decay
-  	gain.gain.setValueAtTime(0.0001, t);
-  	gain.gain.exponentialRampToValueAtTime(0.9, t + 0.08);
-  	gain.gain.exponentialRampToValueAtTime(0.0001, t + 4.5);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.9, t + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 4.5);
 
-  	osc.connect(gain);
-  	gain.connect(audioCtx.destination);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
 
-  	osc.start(t);
-  	osc.stop(t + 4.6);
-	}
+      osc.start(t);
+      osc.stop(t + 4.6);
+    }
 
-    /* Decide whether a sound should play for the current moment */
     function maybeBeep(phase, secondsLeftInt){
       if (!soundEnabled) return;
       if (secondsLeftInt <= 0) return;
@@ -628,7 +616,6 @@
       beep();
     }
 
-    /* Fit the countdown text so it fills the tile nicely */
     function fitTimerValue(){
       const tv = el("remainingValue");
       const card = document.querySelector(".timerCard");
@@ -661,7 +648,6 @@
       tv.style.fontSize = `${lo}px`;
     }
 
-    /* Building toggle */
     switchBtn.onclick = () => {
       building = building === "2" ? "1" : "2";
       localStorage.setItem("bell_building", building);
@@ -669,15 +655,19 @@
       tick();
     };
 
-    /* Sound toggle */
     soundBtn.onclick = () => {
       soundEnabled = !soundEnabled;
       localStorage.setItem("bell_sound_enabled", soundEnabled ? "1" : "0");
-      if (soundEnabled) ensureAudio();
+
+      if (soundEnabled) {
+        ensureAudio();
+        window.addEventListener("pointerdown", unlockAudioOnce, { once: true });
+        window.addEventListener("touchstart", unlockAudioOnce, { once: true, passive: true });
+      }
+
       updateSoundButton();
     };
 
-    /* Single place to update everything that appears on screen */
     function setDisplay(statusLabel, rangeText, secondsLeft, nextBellText){
       el("statusValue").textContent = statusLabel;
       el("periodRange").textContent = rangeText;
@@ -698,7 +688,6 @@
       requestAnimationFrame(fitTimerValue);
     }
 
-    /* Main clock loop */
     function tick(){
       if (calendarReady && closedToday) {
         setDisplay("School closed", "", null, "No bells today")
@@ -770,21 +759,17 @@
       lastBeepKey = "";
     }
 
-    /* Initial UI labels */
     updateBuildingButton();
     updateSoundButton();
 
-    /* Start once we know whether today is marked closed */
     initCalendarClosedCheck().then(() => {
       tick();
       setInterval(tick, 250);
     });
 
-    /* Refit the timer text when sizes change */
     window.addEventListener("resize", () => requestAnimationFrame(fitTimerValue));
     document.addEventListener("fullscreenchange", () => requestAnimationFrame(fitTimerValue));
 
-    /* Fullscreen toggle on double tap or double click */
     let lastTap = 0;
 
     function toggleFullscreen(){
