@@ -1,11 +1,11 @@
-Bell Timer
+**Bell Timer**
 
 Free to use, copy, and fork.
 You are welcome to copy this project or fork it and adapt it for your own school. Just bring your own bell schedule and calendar file and update them as needed.
 
 A single file, mobile friendly web app that shows the current bell schedule status and a live countdown timer. It supports two building schedules, optional bell sounds, fullscreen mode, and automatic school closed detection using a local calendar.ics file.
 
-Features
+**Features**
 
 Live status and countdown
 Shows the current block such as P 3, Transition, Before School, Dismissal, etc, with a real time countdown, next bell time, and active time range.
@@ -35,7 +35,7 @@ Double click on desktop or double tap on mobile toggles fullscreen for wall disp
 Mobile friendly layout
 Responsive design with smooth scrolling and adaptive sizing for phones, tablets, and kiosks.
 
-Files
+**Files**
 
 index.html
 Contains all HTML, CSS, and JavaScript
@@ -46,7 +46,7 @@ Optional file used to detect school closed days
 favicon-16.png, favicon-32.png, favicon-94.png
 Browser and shortcut icons
 
-Customization
+**Customization**
 
 Bell schedules
 Edit the schedules object to match your school’s bell times and labels.
@@ -57,7 +57,7 @@ Replace calendar.ics with your own school calendar.
 Closed day keywords
 Update parseClosedKeysFromIcs() to match your district’s calendar wording.
 
-Notes
+**Notes**
 
 The calendar parser is intentionally simple and checks only SUMMARY and DTSTART
 
