@@ -1,66 +1,106 @@
-**Bell Timer**
+Bell Timer
+Overview
 
-Free to use, copy, and fork.
-You are welcome to copy this project or fork it and adapt it for your own school. Just bring your own bell schedule and calendar file and update them as needed.
+Bell Timer is a lightweight, mobile friendly web application that displays the current school bell status and a live countdown timer. It is designed for classroom displays, hallway monitors, kiosks, and wall mounted screens.
 
-A single file, mobile friendly web app that shows the current bell schedule status and a live countdown timer. It supports two building schedules, optional bell sounds, fullscreen mode, and automatic school closed detection using a local calendar.ics file.
+Features
+Live bell status and countdown
 
-**Features**
+Displays the current period or block
 
-Live status and countdown
-Shows the current block such as P 3, Transition, Before School, Dismissal, etc, with a real time countdown, next bell time, and active time range.
+Shows a live countdown timer
+
+Displays the next bell time
+
+Shows the current time range
 
 Two building schedules
-Toggle between Building 1 and Building 2 with one button. The selected building is saved in localStorage.
 
-School closed detection
-Reads calendar.ics and automatically shows “School closed” with no bells on days marked as no school, holidays, or breaks.
+Supports two separate bell schedules
 
-Smart time handling
-Handles Sundays, before school, transitions, and after school hours without confusing timers.
+One tap switches between Building 1 and Building 2
+
+Building selection is saved and restored automatically
+
+School closed day detection
+
+Reads from a local calendar.ics file
+
+Detects closed days based on event titles
+
+Automatically disables timers and bells on closed days
 
 Optional bell sounds
-Sound can be turned on or off and is generated using the Web Audio API.
 
-Long warning tone at 2 minutes remaining
+Sound can be turned on or off
 
-Short tones in the final seconds of periods and transitions
+Warning beeps near the end of periods
 
-Auto scaling timer text
-Countdown digits automatically resize to fit the screen.
+Uses the Web Audio API
+
+Sound preference is saved
 
 Fullscreen support
-Double click on desktop or double tap on mobile toggles fullscreen for wall displays.
 
-Mobile friendly layout
-Responsive design with smooth scrolling and adaptive sizing for phones, tablets, and kiosks.
+Double click on desktop to toggle fullscreen
 
-**Files**
+Double tap on mobile to toggle fullscreen
+
+Designed for wall displays and kiosks
+
+Mobile friendly design
+
+Responsive layout
+
+Works in portrait and landscape
+
+Smooth scrolling on touch devices
+
+File Structure
 
 index.html
-Contains all HTML, CSS, and JavaScript
+
+bell.css
+
+bell.js
 
 calendar.ics
-Optional file used to detect school closed days
 
-favicon-16.png, favicon-32.png, favicon-94.png
-Browser and shortcut icons
+favicon-16.png
 
-**Customization**
+favicon-32.png
 
-Bell schedules
-Edit the schedules object to match your school’s bell times and labels.
+favicon-94.png
 
-Calendar
-Replace calendar.ics with your own school calendar.
+Customizing Bell Schedules
 
-Closed day keywords
-Update parseClosedKeysFromIcs() to match your district’s calendar wording.
+Edit the schedules object in bell.js.
+Each block defines a start time, end time, and either a period number or label.
 
-**Notes**
+Customizing Closed Day Keywords
 
-The calendar parser is intentionally simple and checks only SUMMARY and DTSTART
+Edit the parseClosedKeysFromIcs function in bell.js.
+Update the keyword list used to identify closed days such as:
 
-Closed days are treated as single day events
+no school
 
-The app should be served from a web server so fetch("calendar.ics") works correctly
+school closed
+
+holiday
+
+winter break
+
+Deployment Notes
+
+Serve the files from a web server
+
+Loading directly from the file system may block calendar loading
+
+Works in modern Chrome, Edge, Safari, and mobile browsers
+
+Suitable for kiosk and fullscreen deployments
+
+License
+
+This project is provided as is for educational and institutional use.
+You may modify and deploy it freely within your organization.
