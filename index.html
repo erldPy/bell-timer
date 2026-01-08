@@ -576,29 +576,31 @@
 
     /* Longer warning tone (used at the 2 minute mark) */
     function longBeep(){
-      if (!soundEnabled) return;
-      ensureAudio();
-      if (!audioCtx) return;
+  	if (!soundEnabled) return;
+  	ensureAudio();
+  	if (!audioCtx) return;
 
-      const t = audioCtx.currentTime;
+  	const t = audioCtx.currentTime;
 
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+  	const osc = audioCtx.createOscillator();
+  	const gain = audioCtx.createGain();
 
-      osc.type = "square";
-      osc.frequency.setValueAtTime(1200, t);
-      osc.frequency.exponentialRampToValueAtTime(900, t + 0.6);
+  	// Bell like tone: low sine wave with gentle pitch drop
+  	osc.type = "sine";
+  	osc.frequency.setValueAtTime(620, t);
+  	osc.frequency.exponentialRampToValueAtTime(440, t + 4.0);
 
-      gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.exponentialRampToValueAtTime(0.95, t + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 2.4);
+  	// Slow attack and long natural decay
+  	gain.gain.setValueAtTime(0.0001, t);
+  	gain.gain.exponentialRampToValueAtTime(0.9, t + 0.08);
+  	gain.gain.exponentialRampToValueAtTime(0.0001, t + 4.5);
 
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
+  	osc.connect(gain);
+  	gain.connect(audioCtx.destination);
 
-      osc.start(t);
-      osc.stop(t + 2.5);
-    }
+  	osc.start(t);
+  	osc.stop(t + 4.6);
+	}
 
     /* Decide whether a sound should play for the current moment */
     function maybeBeep(phase, secondsLeftInt){
