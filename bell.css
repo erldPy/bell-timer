@@ -1,0 +1,239 @@
+@charset "UTF-8";
+
+:root{
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  --appH: 100svh;
+}
+
+html{
+  height: 100%;
+  background: linear-gradient(-45deg,
+    #0b2a5b,
+    #7c3aed,
+    #ef4444,
+    #22c55e,
+    #06b6d4,
+    #0b2a5b
+  );
+  background-size: 500% 500%;
+  animation: bgMove 45s linear infinite;
+}
+
+body{
+  margin: 0;
+  min-height: var(--appH);
+  height: 100%;
+  background: transparent;
+  color: #ffffff;
+}
+
+@keyframes bgMove{
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.wrap{
+  min-height: var(--appH);
+  display: grid;
+  place-items: start center;
+  padding: 12px;
+  padding-top: 16px;
+  box-sizing: border-box;
+}
+
+.card{
+  width: min(1100px, 98vw);
+  height: calc(var(--appH) - 24px);
+  max-height: calc(var(--appH) - 24px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+
+  background: rgba(5,20,50,0.85);
+  border-radius: 24px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+  padding: 12px;
+
+  display: grid;
+  grid-template-rows: 1fr auto auto;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+@media (orientation: portrait){
+  html, body{ height: 100%; }
+
+  body{
+    min-height: 100%;
+    overflow: hidden;
+  }
+
+  .wrap{
+    position: fixed;
+    inset: 0;
+    min-height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    padding: 12px;
+    padding-top: 16px;
+    box-sizing: border-box;
+  }
+
+  .card{
+    height: 100%;
+    max-height: none;
+  }
+}
+
+.stack{
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 10px;
+  min-height: 0;
+}
+
+.tile{
+  background: linear-gradient(180deg, #1f2933, #111827);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.12),
+    0 14px 30px rgba(0,0,0,0.60);
+  padding: 12px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  box-sizing: border-box;
+  min-height: 0;
+}
+
+.statusTile{
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: 6px 12px;
+  min-height: 56px;
+}
+
+.statusValue{
+  font-size: clamp(34px, 5.5vh, 62px);
+  font-weight: 950;
+  color: #ffffff;
+  text-shadow: 0 6px 16px rgba(0,0,0,0.65);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.timerCard{
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  display: block;
+  min-height: 220px;
+}
+
+.timerLabel{
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: clamp(12px, 1.6vh, 16px);
+  margin: 0;
+  z-index: 3;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.timerValue{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  display: inline-block;
+  width: auto;
+  max-width: none;
+
+  text-align: center;
+  font-weight: 950;
+  line-height: 0.78;
+  color: #facc15;
+  text-shadow: 0 16px 32px rgba(0,0,0,0.78);
+  white-space: nowrap;
+  margin: 0;
+  z-index: 1;
+  pointer-events: none;
+
+  font-variant-numeric: tabular-nums;
+}
+
+.timerSub{
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: clamp(12px, 1.6vh, 16px);
+  margin: 0;
+  text-align: center;
+  width: calc(100% - 24px);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.timerCard.noTimer .timerValue{ display: none; }
+.timerCard.noTimer .timerLabel{ top: 14px; }
+
+.timerCard.noTimer .timerSub{
+  top: 44%;
+  bottom: auto;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(18px, 2.4vh, 26px);
+  width: calc(100% - 24px);
+}
+
+.periodRange{
+  text-align: center;
+  font-size: clamp(13px, 1.9vh, 18px);
+  color: #ffffff;
+  padding: 2px 10px;
+  overflow-wrap: anywhere;
+}
+
+.bottomBar{
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255,255,255,0.20);
+}
+
+.btn{
+  font-size: clamp(14px, 2.0vh, 18px);
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.55);
+  cursor: pointer;
+  font-weight: 800;
+  background: linear-gradient(180deg, #1f2933, #111827);
+  color: #ffffff;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.50);
+}
+
+.btn:active{ transform: scale(0.97); }
+.btn:hover{ filter: brightness(1.15); }
+
+#errBox{
+  display: none;
+  margin: 6px 0 0 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.25);
+  font-size: 14px;
+  line-height: 1.25;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
