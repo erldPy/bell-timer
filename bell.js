@@ -123,7 +123,7 @@ const schedules = {
       { start: toMin(10,58), end: toMin(11,36), period: 6 },
       { start: toMin(11,40), end: toMin(12,18), period: 7 },
       { start: toMin(12,22), end: toMin(13,0),  period: 8 },
-      { start: toMin(13,0),  end: toMin(13,30), label: "After School" }
+      { start: toMin(13,0),  end: toMin(13,30), label: "Dismissal" }
     ],
     "sat": [
       { start: toMin(9,0), end: toMin(12,0), label: "Tutorials" }
@@ -151,7 +151,7 @@ const schedules = {
       { start: toMin(11,6),  end: toMin(11,36), period: 6 },
       { start: toMin(11,40), end: toMin(12,18), period: 7 },
       { start: toMin(12,22), end: toMin(13,0),  period: 8 },
-      { start: toMin(13,0),  end: toMin(13,30), label: "After School" }
+      { start: toMin(13,0),  end: toMin(13,30), label: "Dismissal" }
     ],
     "sat": [
       { start: toMin(9,0), end: toMin(12,0), label: "Tutorials" }
