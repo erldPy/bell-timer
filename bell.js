@@ -380,25 +380,35 @@ function tick(){
   const nowM = nowMinutes();
 
   for (let i = 0; i < blocks.length; i++) {
-    const b = blocks[i];
-    if (nowM >= b.start && nowM < b.end) {
-      const secondsLeft = Math.max(0, Math.floor((b.end - nowM) * 60));
-      const statusText = b.label ? b.label : `P ${b.period}`;
+  const b = blocks[i];
+  if (nowM >= b.start && nowM < b.end) {
+    const secondsLeft = Math.max(0, Math.floor((b.end - nowM) * 60));
 
-      setDisplay(
-        statusText,
-        `${formatTime(b.start)} to ${formatTime(b.end)}`,
-        secondsLeft,
-        `Next bell at ${formatTime(b.end)}`
-      );
+    let statusText = b.label ? b.label : `P ${b.period}`;
 
-      const blockId = `${dayKey}_${building}_${i}_${b.start}_${b.end}`;
-      const secondsSinceStart = Math.floor((nowM - b.start) * 60);
-
-      maybePeriodLongSounds(secondsLeft, blockId, secondsSinceStart);
-      return;
+    if (building === "1" && b.period === 5) {
+      statusText += " Lunch 1";
     }
+
+    if (building === "2" && b.period === 6) {
+      statusText += " Lunch 2";
+    }
+
+    setDisplay(
+      statusText,
+      `${formatTime(b.start)} to ${formatTime(b.end)}`,
+      secondsLeft,
+      `Next bell at ${formatTime(b.end)}`
+    );
+
+    const blockId = `${dayKey}_${building}_${i}_${b.start}_${b.end}`;
+    const secondsSinceStart = Math.floor((nowM - b.start) * 60);
+
+    maybePeriodLongSounds(secondsLeft, blockId, secondsSinceStart);
+    return;
   }
+}
+
 
   if (nowM < blocks[0].start) {
     const secondsLeft = Math.max(0, Math.floor((blocks[0].start - nowM) * 60));
