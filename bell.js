@@ -167,11 +167,6 @@ let soundEnabled = (localStorage.getItem("bell_sound_enabled") || "1") === "1";
 
 let audioCtx = null;
 
-let lastBeepKey = "";
-let warnedThisBlock = false;
-let warnBlockId = "";
-let lastSecondBeeped = null;
-
 function pad(n){ return String(n).padStart(2, "0"); }
 
 function formatTime(mins){
@@ -208,40 +203,6 @@ function ensureAudio(){
   if (audioCtx.state === "suspended") audioCtx.resume();
 }
 
-function beep(){
-  if (!soundEnabled) return;
-  ensureAudio();
-  if (!audioCtx) return;
-
-  const t = audioCtx.currentTime;
-
-  const osc1 = audioCtx.createOscillator();
-  const osc2 = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-
-  osc1.type = "square";
-  osc2.type = "sine";
-
-  osc1.frequency.setValueAtTime(1760, t);
-  osc2.frequency.setValueAtTime(2093, t);
-
-  osc1.frequency.exponentialRampToValueAtTime(1320, t + 0.08);
-  osc2.frequency.exponentialRampToValueAtTime(1568, t + 0.08);
-
-  gain.gain.setValueAtTime(0.0001, t);
-  gain.gain.exponentialRampToValueAtTime(0.7, t + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
-
-  osc1.connect(gain);
-  osc2.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  osc1.start(t);
-  osc2.start(t);
-  osc1.stop(t + 0.24);
-  osc2.stop(t + 0.24);
-}
-
 function longBeep(){
   if (!soundEnabled) return;
   ensureAudio();
@@ -272,35 +233,51 @@ function longBeep(){
   osc2.stop(t + 2.0);
 }
 
-function maybeBeep(phase, secondsLeftInt, blockId){
+/*
+  Sound rules
+  Long sound only
+  Period start
+  Exactly 2 minutes remaining
+  Period end
+  No transition sounds
+*/
+
+let currentBlockId = "";
+let playedStartForBlock = false;
+let playedTwoMinForBlock = false;
+let playedEndForBlock = false;
+
+function resetSoundState(){
+  currentBlockId = "";
+  playedStartForBlock = false;
+  playedTwoMinForBlock = false;
+  playedEndForBlock = false;
+}
+
+function maybePeriodLongSounds(secondsLeftInt, blockId, secondsSinceStart){
   if (!soundEnabled) return;
 
-  if (phase === "period") {
-    if (warnBlockId !== blockId) {
-      warnBlockId = blockId;
-      warnedThisBlock = false;
-    }
-
-    if (!warnedThisBlock && secondsLeftInt <= 120 && secondsLeftInt > 0) {
-      warnedThisBlock = true;
-      longBeep();
-    }
+  if (currentBlockId !== blockId) {
+    currentBlockId = blockId;
+    playedStartForBlock = false;
+    playedTwoMinForBlock = false;
+    playedEndForBlock = false;
   }
 
-  if (secondsLeftInt <= 0) return;
+  if (!playedStartForBlock && secondsSinceStart >= 0 && secondsSinceStart <= 2) {
+    playedStartForBlock = true;
+    longBeep();
+  }
 
-  const s = secondsLeftInt;
+  if (!playedTwoMinForBlock && secondsLeftInt === 120) {
+    playedTwoMinForBlock = true;
+    longBeep();
+  }
 
-  let shouldBeep = false;
-  if (phase === "period" && s <= 5) shouldBeep = true;
-  if (phase === "transition" && s <= 3) shouldBeep = true;
-  if (!shouldBeep) return;
-
-  const secondKey = `${phase}_${s}`;
-  if (lastSecondBeeped === secondKey) return;
-  lastSecondBeeped = secondKey;
-
-  beep();
+  if (!playedEndForBlock && secondsLeftInt === 0) {
+    playedEndForBlock = true;
+    longBeep();
+  }
 }
 
 function fitTimerValue(){
@@ -354,10 +331,7 @@ function setDisplay(statusLabel, rangeText, secondsLeft, nextBellText){
 function tick(){
   if (calendarReady && closedToday) {
     setDisplay("School closed", "", null, "No bells today");
-    lastBeepKey = "";
-    lastSecondBeeped = null;
-    warnBlockId = "";
-    warnedThisBlock = false;
+    resetSoundState();
     return;
   }
 
@@ -365,10 +339,7 @@ function tick(){
 
   if (dayKey === "sun") {
     setDisplay("No School", "Sunday", null, "No bells today");
-    lastBeepKey = "";
-    lastSecondBeeped = null;
-    warnBlockId = "";
-    warnedThisBlock = false;
+    resetSoundState();
     return;
   }
 
@@ -389,7 +360,9 @@ function tick(){
       );
 
       const blockId = `${dayKey}_${building}_${i}_${b.start}_${b.end}`;
-      maybeBeep("period", secondsLeft, blockId);
+      const secondsSinceStart = Math.floor((nowM - b.start) * 60);
+
+      maybePeriodLongSounds(secondsLeft, blockId, secondsSinceStart);
       return;
     }
   }
@@ -402,10 +375,7 @@ function tick(){
       secondsLeft,
       `Next bell at ${formatTime(blocks[0].start)}`
     );
-    lastBeepKey = "";
-    lastSecondBeeped = null;
-    warnBlockId = "";
-    warnedThisBlock = false;
+    resetSoundState();
     return;
   }
 
@@ -421,7 +391,7 @@ function tick(){
         `Next bell at ${formatTime(blocks[i + 1].start)}`
       );
 
-      maybeBeep("transition", secondsLeft, "transition");
+      resetSoundState();
       return;
     }
   }
@@ -433,10 +403,7 @@ function tick(){
     `Next school day starts at ${formatTime(blocks[0].start)}`
   );
 
-  lastBeepKey = "";
-  lastSecondBeeped = null;
-  warnBlockId = "";
-  warnedThisBlock = false;
+  resetSoundState();
 }
 
 switchBtn.onclick = () => {
@@ -464,7 +431,6 @@ initCalendarClosedCheck().then(() => {
 window.addEventListener("resize", () => requestAnimationFrame(fitTimerValue));
 document.addEventListener("fullscreenchange", () => requestAnimationFrame(fitTimerValue));
 
-let lastTap = 0;
 function toggleFullscreen(){
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen().catch(() => {});
