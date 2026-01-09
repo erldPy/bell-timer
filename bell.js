@@ -299,12 +299,12 @@ function maybePeriodLongSounds(secondsLeftInt, blockId, secondsSinceStart){
     longBeep();
   }
 
-  if (!playedTwoMinForBlock && secondsLeftInt === 120) {
-    playedTwoMinForBlock = true;
+  if (!playedTwoMinForBlock && secondsLeftInt <= 120 && secondsLeftInt >= 118) {
+  playedTwoMinForBlock = true;
+  longBeepHalf();
+  setTimeout(() => {
     longBeepHalf();
-    setTimeout(() => {
-      longBeepHalf();
-    }, 200);
+  }, 200);
   }
 
   if (!playedEndForBlock && secondsLeftInt === 0) {
