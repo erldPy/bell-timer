@@ -233,11 +233,41 @@ function longBeep(){
   osc2.stop(t + 2.0);
 }
 
+function longBeepHalf(){
+  if (!soundEnabled) return;
+  ensureAudio();
+  if (!audioCtx) return;
+
+  const t = audioCtx.currentTime;
+
+  const osc1 = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc1.type = "sine";
+  osc2.type = "sine";
+
+  osc1.frequency.setValueAtTime(520, t);
+  osc2.frequency.setValueAtTime(780, t);
+
+  gain.gain.setValueAtTime(0.28, t);
+
+  osc1.connect(gain);
+  osc2.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc1.start(t);
+  osc2.start(t);
+
+  osc1.stop(t + 1.0);
+  osc2.stop(t + 1.0);
+}
+
 /*
   Sound rules
   Long sound only
   Period start
-  Exactly 2 minutes remaining
+  Exactly 2 minutes remaining (two half length rings, very close)
   Period end
   No transition sounds
 */
@@ -270,9 +300,11 @@ function maybePeriodLongSounds(secondsLeftInt, blockId, secondsSinceStart){
   }
 
   if (!playedTwoMinForBlock && secondsLeftInt === 120) {
-  playedTwoMinForBlock = true;
-  longBeepHalf();
-  setTimeout(longBeepHalf, 1200);
+    playedTwoMinForBlock = true;
+    longBeepHalf();
+    setTimeout(() => {
+      longBeepHalf();
+    }, 200);
   }
 
   if (!playedEndForBlock && secondsLeftInt === 0) {
