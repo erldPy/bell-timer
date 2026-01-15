@@ -89,8 +89,10 @@ body{
 
   .statusValue{
     white-space: normal;
-    max-width: 100%;
     text-wrap: balance;
+    max-width: 100%;
+    font-size: clamp(26px, 4.2vh, 44px);
+    line-height: 1.05;
   }
 }
 
