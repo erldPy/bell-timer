@@ -249,3 +249,22 @@ body{
     line-height: 1.05;
   }
 }
+
+@media (orientation: landscape){
+  .wrap{
+    padding-top: 10px;
+  }
+
+  .card{
+    height: 100%;
+    max-height: none;
+  }
+
+  .timerCard{
+    min-height: 150px;
+  }
+
+  .bottomBar{
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+}
