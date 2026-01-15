@@ -46,7 +46,9 @@ body{
   width: min(1100px, 98vw);
   height: calc(var(--appH) - 24px);
   max-height: calc(var(--appH) - 24px);
-  overflow: auto;
+
+  overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
 
   background: rgba(5,20,50,0.85);
@@ -83,6 +85,12 @@ body{
   .card{
     height: 100%;
     max-height: none;
+  }
+
+  .statusValue{
+    white-space: normal;
+    max-width: 100%;
+    text-wrap: balance;
   }
 }
 
@@ -121,7 +129,10 @@ body{
   color: #ffffff;
   text-shadow: 0 6px 16px rgba(0,0,0,0.65);
   line-height: 1;
+
   white-space: nowrap;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .timerCard{
@@ -152,7 +163,7 @@ body{
 
   display: inline-block;
   width: auto;
-  max-width: none;
+  max-width: 100%;
 
   text-align: center;
   font-weight: 950;
