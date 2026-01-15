@@ -16,6 +16,7 @@ window.addEventListener("unhandledrejection", (e) => {
 });
 
 const toMin = (h, m) => h * 60 + m;
+const DAY_START_MIN = toMin(7, 0);
 
 function setViewportVars(){
   const h = window.innerHeight;
@@ -114,6 +115,18 @@ const schedules = {
       { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
       { start: toMin(15,45), end: toMin(17,0),  label: "After-school Programs" }
     ],
+    "wed": [
+      { start: toMin(7,36), end: toMin(8,33), period: 1 },
+      { start: toMin(8,37), end: toMin(9,34), period: 2 },
+      { start: toMin(9,38), end: toMin(10,35), period: 3 },
+      { start: toMin(10,39), end: toMin(11,36), period: 4 },
+      { start: toMin(11,40), end: toMin(12,10), period: 5 },
+      { start: toMin(12,14), end: toMin(13,11), period: 6 },
+      { start: toMin(13,15), end: toMin(14,12), period: 7 },
+      { start: toMin(14,16), end: toMin(15,13), period: 8 },
+      { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
+      { start: toMin(15,45), end: toMin(17,0),  label: "Faculty Meetings" }
+    ],
     "fri": [
       { start: toMin(7,36), end: toMin(8,14), period: 1 },
       { start: toMin(8,18), end: toMin(8,56), period: 2 },
@@ -141,6 +154,18 @@ const schedules = {
       { start: toMin(14,16), end: toMin(15,13), period: 8 },
       { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
       { start: toMin(15,45), end: toMin(17,0),  label: "After-school Programs" }
+    ],
+    "wed": [
+      { start: toMin(7,36), end: toMin(8,33), period: 1 },
+      { start: toMin(8,37), end: toMin(9,34), period: 2 },
+      { start: toMin(9,38), end: toMin(10,35), period: 3 },
+      { start: toMin(10,39), end: toMin(11,36), period: 4 },
+      { start: toMin(11,40), end: toMin(12,37), period: 5 },
+      { start: toMin(12,41), end: toMin(13,11), period: 6 },
+      { start: toMin(13,15), end: toMin(14,12), period: 7 },
+      { start: toMin(14,16), end: toMin(15,13), period: 8 },
+      { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
+      { start: toMin(15,45), end: toMin(17,0),  label: "Faculty Meetings" }
     ],
     "fri": [
       { start: toMin(7,36), end: toMin(8,14), period: 1 },
@@ -181,6 +206,7 @@ function getDayKey(){
   const d = new Date().getDay();
   if (d === 6) return "sat";
   if (d === 5) return "fri";
+  if (d === 3) return "wed";
   if (d === 0) return "sun";
   return "mon_thurs";
 }
@@ -233,55 +259,20 @@ function longBeep(){
   osc2.stop(t + 2.0);
 }
 
-function longBeepHalf(){
-  if (!soundEnabled) return;
-  ensureAudio();
-  if (!audioCtx) return;
-
-  const t = audioCtx.currentTime;
-
-  const osc1 = audioCtx.createOscillator();
-  const osc2 = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-
-  osc1.type = "sine";
-  osc2.type = "sine";
-
-  osc1.frequency.setValueAtTime(520, t);
-  osc2.frequency.setValueAtTime(780, t);
-
-  gain.gain.setValueAtTime(0.28, t);
-
-  osc1.connect(gain);
-  osc2.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  osc1.start(t);
-  osc2.start(t);
-
-  osc1.stop(t + 1.0);
-  osc2.stop(t + 1.0);
-}
-
-/*
-  Sound rules
-  Long sound only
-  Period start
-  Exactly 2 minutes remaining (two half length rings, very close)
-  Period end
-  No transition sounds
-*/
-
 let currentBlockId = "";
 let playedStartForBlock = false;
 let playedTwoMinForBlock = false;
 let playedEndForBlock = false;
+let lastSecondsLeftForBlock = null;
+
+let playedMorningBellForDay = "";
 
 function resetSoundState(){
   currentBlockId = "";
   playedStartForBlock = false;
   playedTwoMinForBlock = false;
   playedEndForBlock = false;
+  lastSecondsLeftForBlock = null;
 }
 
 function maybePeriodLongSounds(secondsLeftInt, blockId, secondsSinceStart){
@@ -292,6 +283,7 @@ function maybePeriodLongSounds(secondsLeftInt, blockId, secondsSinceStart){
     playedStartForBlock = false;
     playedTwoMinForBlock = false;
     playedEndForBlock = false;
+    lastSecondsLeftForBlock = null;
   }
 
   if (!playedStartForBlock && secondsSinceStart >= 0 && secondsSinceStart <= 2) {
@@ -299,18 +291,19 @@ function maybePeriodLongSounds(secondsLeftInt, blockId, secondsSinceStart){
     longBeep();
   }
 
-  if (!playedTwoMinForBlock && secondsLeftInt <= 120 && secondsLeftInt >= 118) {
-  playedTwoMinForBlock = true;
-  longBeepHalf();
-  setTimeout(() => {
-    longBeepHalf();
-  }, 200);
+  if (!playedTwoMinForBlock && lastSecondsLeftForBlock !== null) {
+    if (lastSecondsLeftForBlock > 120 && secondsLeftInt <= 120) {
+      playedTwoMinForBlock = true;
+      longBeep();
+    }
   }
 
   if (!playedEndForBlock && secondsLeftInt === 0) {
     playedEndForBlock = true;
     longBeep();
   }
+
+  lastSecondsLeftForBlock = secondsLeftInt;
 }
 
 function fitTimerValue(){
@@ -380,51 +373,66 @@ function tick(){
   const nowM = nowMinutes();
 
   for (let i = 0; i < blocks.length; i++) {
-  const b = blocks[i];
-  if (nowM >= b.start && nowM < b.end) {
-    const secondsLeft = Math.max(0, Math.floor((b.end - nowM) * 60));
+    const b = blocks[i];
+    if (nowM >= b.start && nowM < b.end) {
+      const secondsLeft = Math.max(0, Math.round((b.end - nowM) * 60));
 
-    let statusText = b.label ? b.label : `P ${b.period}`;
+      let statusText = b.label ? b.label : `P ${b.period}`;
 
-    if (building === "1" && b.period === 5) {
-      statusText += " Lunch 1";
+      if (building === "1" && b.period === 5) {
+        statusText += " Lunch 1";
+      }
+
+      if (building === "2" && b.period === 6) {
+        statusText += " Lunch 2";
+      }
+
+      setDisplay(
+        statusText,
+        `${formatTime(b.start)} to ${formatTime(b.end)}`,
+        secondsLeft,
+        `Next bell at ${formatTime(b.end)}`
+      );
+
+      const blockId = `${dayKey}_${building}_${i}_${b.start}_${b.end}`;
+      const secondsSinceStart = Math.floor((nowM - b.start) * 60);
+
+      maybePeriodLongSounds(secondsLeft, blockId, secondsSinceStart);
+      return;
     }
-
-    if (building === "2" && b.period === 6) {
-      statusText += " Lunch 2";
-    }
-
-    setDisplay(
-      statusText,
-      `${formatTime(b.start)} to ${formatTime(b.end)}`,
-      secondsLeft,
-      `Next bell at ${formatTime(b.end)}`
-    );
-
-    const blockId = `${dayKey}_${building}_${i}_${b.start}_${b.end}`;
-    const secondsSinceStart = Math.floor((nowM - b.start) * 60);
-
-    maybePeriodLongSounds(secondsLeft, blockId, secondsSinceStart);
-    return;
   }
-}
-
 
   if (nowM < blocks[0].start) {
-    const secondsLeft = Math.max(0, Math.floor((blocks[0].start - nowM) * 60));
-    setDisplay(
-      "Before School",
-      `First bell at ${formatTime(blocks[0].start)}`,
-      secondsLeft,
-      `Next bell at ${formatTime(blocks[0].start)}`
-    );
+    if (nowM < DAY_START_MIN) {
+      setDisplay(
+        "Before School",
+        `Day starts at ${formatTime(DAY_START_MIN)}`,
+        null,
+        `Next bell at ${formatTime(blocks[0].start)}`
+      );
+    } else {
+      const secondsLeft = Math.max(0, Math.round((blocks[0].start - nowM) * 60));
+
+      const morningKey = todayKey();
+      if (playedMorningBellForDay !== morningKey && secondsLeft <= 2 && secondsLeft >= 0) {
+        playedMorningBellForDay = morningKey;
+        longBeep();
+      }
+
+      setDisplay(
+        "Before School",
+        `First bell at ${formatTime(blocks[0].start)}`,
+        secondsLeft,
+        `Next bell at ${formatTime(blocks[0].start)}`
+      );
+    }
     resetSoundState();
     return;
   }
 
   for (let i = 0; i < blocks.length - 1; i++) {
     if (nowM >= blocks[i].end && nowM < blocks[i + 1].start) {
-      const secondsLeft = Math.max(0, Math.floor((blocks[i + 1].start - nowM) * 60));
+      const secondsLeft = Math.max(0, Math.round((blocks[i + 1].start - nowM) * 60));
       const nextName = blocks[i + 1].label ? blocks[i + 1].label : `P ${blocks[i + 1].period}`;
 
       setDisplay(
@@ -468,7 +476,7 @@ updateSoundButton();
 
 initCalendarClosedCheck().then(() => {
   tick();
-  setInterval(tick, 250);
+  setInterval(tick, 200);
 });
 
 window.addEventListener("resize", () => requestAnimationFrame(fitTimerValue));
