@@ -123,6 +123,10 @@ body{
   white-space: nowrap;
 }
 
+.timerCard.noTimer .timerLabel{
+  display: none;
+}
+
 .timerValue{
   position: absolute;
   top: 50%;
