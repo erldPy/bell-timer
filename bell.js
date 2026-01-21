@@ -260,50 +260,45 @@ function longBeep(){
 }
 
 let currentBlockId = "";
-let playedStartForBlock = false;
 let playedTwoMinForBlock = false;
 let playedEndForBlock = false;
-let lastSecondsLeftForBlock = null;
+
+let lastSeenPeriodBlockId = "";
+let lastSeenPeriodEndMin = null;
+let endBellFiredForBlockId = "";
 
 let playedMorningBellForDay = "";
 
 function resetSoundState(){
   currentBlockId = "";
-  playedStartForBlock = false;
   playedTwoMinForBlock = false;
   playedEndForBlock = false;
-  lastSecondsLeftForBlock = null;
+
+  lastSeenPeriodBlockId = "";
+  lastSeenPeriodEndMin = null;
+  endBellFiredForBlockId = "";
 }
 
-function maybePeriodLongSounds(secondsLeftInt, blockId, secondsSinceStart){
+function maybePeriodLongSounds(secondsLeftInt, blockId){
   if (!soundEnabled) return;
 
   if (currentBlockId !== blockId) {
     currentBlockId = blockId;
-    playedStartForBlock = false;
     playedTwoMinForBlock = false;
     playedEndForBlock = false;
-    lastSecondsLeftForBlock = null;
-  }
 
-  if (!playedStartForBlock && secondsSinceStart >= 0 && secondsSinceStart <= 2) {
-    playedStartForBlock = true;
     longBeep();
   }
 
-  if (!playedTwoMinForBlock && lastSecondsLeftForBlock !== null) {
-    if (lastSecondsLeftForBlock > 120 && secondsLeftInt <= 120) {
-      playedTwoMinForBlock = true;
-      longBeep();
-    }
+  if (!playedTwoMinForBlock && secondsLeftInt <= 120 && secondsLeftInt > 0) {
+    playedTwoMinForBlock = true;
+    longBeep();
   }
 
-  if (!playedEndForBlock && secondsLeftInt === 0) {
+  if (!playedEndForBlock && secondsLeftInt <= 0) {
     playedEndForBlock = true;
     longBeep();
   }
-
-  lastSecondsLeftForBlock = secondsLeftInt;
 }
 
 function fitTimerValue(){
@@ -355,13 +350,13 @@ function setDisplay(statusLabel, rangeText, secondsLeft, nextBellText){
 }
 
 function tick(){
+  const dayKey = getDayKey();
+
   if (calendarReady && closedToday) {
     setDisplay("School closed", "", null, "No bells today");
     resetSoundState();
     return;
   }
-
-  const dayKey = getDayKey();
 
   if (dayKey === "sun") {
     setDisplay("No School", "Sunday", null, "No bells today");
@@ -379,13 +374,8 @@ function tick(){
 
       let statusText = b.label ? b.label : `P ${b.period}`;
 
-      if (building === "1" && b.period === 5) {
-        statusText += " Lunch 1";
-      }
-
-      if (building === "2" && b.period === 6) {
-        statusText += " Lunch 2";
-      }
+      if (building === "1" && b.period === 5) statusText += " Lunch 1";
+      if (building === "2" && b.period === 6) statusText += " Lunch 2";
 
       setDisplay(
         statusText,
@@ -395,11 +385,22 @@ function tick(){
       );
 
       const blockId = `${dayKey}_${building}_${i}_${b.start}_${b.end}`;
-      const secondsSinceStart = Math.floor((nowM - b.start) * 60);
+      lastSeenPeriodBlockId = blockId;
+      lastSeenPeriodEndMin = b.end;
 
-      maybePeriodLongSounds(secondsLeft, blockId, secondsSinceStart);
+      maybePeriodLongSounds(secondsLeft, blockId);
       return;
     }
+  }
+
+  if (
+    lastSeenPeriodBlockId &&
+    endBellFiredForBlockId !== lastSeenPeriodBlockId &&
+    lastSeenPeriodEndMin !== null &&
+    nowM >= lastSeenPeriodEndMin
+  ) {
+    endBellFiredForBlockId = lastSeenPeriodBlockId;
+    longBeep();
   }
 
   if (nowM < blocks[0].start) {
@@ -412,8 +413,8 @@ function tick(){
       );
     } else {
       const secondsLeft = Math.max(0, Math.round((blocks[0].start - nowM) * 60));
-
       const morningKey = todayKey();
+
       if (playedMorningBellForDay !== morningKey && secondsLeft <= 2 && secondsLeft >= 0) {
         playedMorningBellForDay = morningKey;
         longBeep();
