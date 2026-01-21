@@ -1,519 +1,274 @@
-const el = (id) => document.getElementById(id);
+@charset "UTF-8";
 
-const errBox = el("errBox");
-function showErr(msg){
-  errBox.style.display = "block";
-  errBox.textContent = msg;
+:root{
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  --appH: 100svh;
 }
 
-window.addEventListener("error", (e) => {
-  const line = e.lineno ? `Line ${e.lineno}` : "";
-  showErr(`JavaScript error\n${e.message}\n${line}`);
-});
-
-window.addEventListener("unhandledrejection", (e) => {
-  showErr(`Promise error\n${String(e.reason || e)}`);
-});
-
-const toMin = (h, m) => h * 60 + m;
-
-function setViewportVars(){
-  const h = window.innerHeight;
-  document.documentElement.style.setProperty("--appH", `${h}px`);
-}
-setViewportVars();
-window.addEventListener("resize", setViewportVars);
-window.addEventListener("orientationchange", setViewportVars);
-
-const ICS_URL = "calendar.ics";
-let closedToday = false;
-let calendarReady = false;
-
-function todayKey() {
-  const d = new Date();
-  const y = String(d.getFullYear());
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}${m}${day}`;
-}
-
-function parseClosedKeysFromIcs(text) {
-  const closed = new Set();
-  const lines = text.split(/\r?\n/);
-  let inEvent = false;
-  let isClosedEvent = false;
-  let startKey = "";
-
-  for (const raw of lines) {
-    const line = raw.trim();
-
-    if (line === "BEGIN:VEVENT") {
-      inEvent = true;
-      isClosedEvent = false;
-      startKey = "";
-      continue;
-    }
-
-    if (line === "END:VEVENT") {
-      if (inEvent && isClosedEvent && startKey) closed.add(startKey);
-      inEvent = false;
-      continue;
-    }
-
-    if (!inEvent) continue;
-
-    if (line.startsWith("SUMMARY:")) {
-      const s = line.slice(8).toLowerCase();
-      if (
-        s.includes("no school") ||
-        s.includes("school closed") ||
-        s.includes("holiday") ||
-        s.includes("winter break")
-      ) {
-        isClosedEvent = true;
-      }
-    }
-
-    if (line.startsWith("DTSTART")) {
-      const parts = line.split(":");
-      const v = parts[1] || "";
-      const y = v.slice(0, 4);
-      const m = v.slice(4, 6);
-      const d = v.slice(6, 8);
-      if (y && m && d) startKey = `${y}${m}${d}`;
-    }
-  }
-
-  return closed;
-}
-
-async function initCalendarClosedCheck() {
-  try {
-    const res = await fetch(ICS_URL, { cache: "no-store" });
-    const text = await res.text();
-    const closedKeys = parseClosedKeysFromIcs(text);
-    closedToday = closedKeys.has(todayKey());
-  } catch (e) {
-    closedToday = false;
-  } finally {
-    calendarReady = true;
-  }
-}
-
-const schedules = {
-  "1": {
-    "mon_thurs": [
-      { start: toMin(7,36), end: toMin(8,33), period: 1 },
-      { start: toMin(8,37), end: toMin(9,34), period: 2 },
-      { start: toMin(9,38), end: toMin(10,35), period: 3 },
-      { start: toMin(10,39), end: toMin(11,36), period: 4 },
-      { start: toMin(11,40), end: toMin(12,10), period: 5 },
-      { start: toMin(12,14), end: toMin(13,11), period: 6 },
-      { start: toMin(13,15), end: toMin(14,12), period: 7 },
-      { start: toMin(14,16), end: toMin(15,13), period: 8 },
-      { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
-      { start: toMin(15,45), end: toMin(17,0),  label: "After-school Programs" }
-    ],
-    "fri": [
-      { start: toMin(7,36), end: toMin(8,14), period: 1 },
-      { start: toMin(8,18), end: toMin(8,56), period: 2 },
-      { start: toMin(9,0),  end: toMin(9,38), period: 3 },
-      { start: toMin(9,42), end: toMin(10,20), period: 4 },
-      { start: toMin(10,24), end: toMin(10,54), period: 5 },
-      { start: toMin(10,58), end: toMin(11,36), period: 6 },
-      { start: toMin(11,40), end: toMin(12,18), period: 7 },
-      { start: toMin(12,22), end: toMin(13,0),  period: 8 },
-      { start: toMin(13,0),  end: toMin(13,30), label: "After School" }
-    ],
-    "sat": [
-      { start: toMin(9,0), end: toMin(12,0), label: "Tutorials" }
-    ]
-  },
-  "2": {
-    "mon_thurs": [
-      { start: toMin(7,36), end: toMin(8,33), period: 1 },
-      { start: toMin(8,37), end: toMin(9,34), period: 2 },
-      { start: toMin(9,38), end: toMin(10,35), period: 3 },
-      { start: toMin(10,39), end: toMin(11,36), period: 4 },
-      { start: toMin(11,40), end: toMin(12,37), period: 5 },
-      { start: toMin(12,41), end: toMin(13,11), period: 6 },
-      { start: toMin(13,15), end: toMin(14,12), period: 7 },
-      { start: toMin(14,16), end: toMin(15,13), period: 8 },
-      { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
-      { start: toMin(15,45), end: toMin(17,0),  label: "After-school Programs" }
-    ],
-    "fri": [
-      { start: toMin(7,36), end: toMin(8,14), period: 1 },
-      { start: toMin(8,18), end: toMin(8,56), period: 2 },
-      { start: toMin(9,0),  end: toMin(9,38), period: 3 },
-      { start: toMin(9,42), end: toMin(10,20), period: 4 },
-      { start: toMin(10,24), end: toMin(11,2),  period: 5 },
-      { start: toMin(11,6),  end: toMin(11,36), period: 6 },
-      { start: toMin(11,40), end: toMin(12,18), period: 7 },
-      { start: toMin(12,22), end: toMin(13,0),  period: 8 },
-      { start: toMin(13,0),  end: toMin(13,30), label: "After School" }
-    ],
-    "sat": [
-      { start: toMin(9,0), end: toMin(12,0), label: "Tutorials" }
-    ]
-  }
-};
-
-const switchBtn = el("switchBtn");
-const soundBtn = el("soundBtn");
-
-let building = localStorage.getItem("bell_building") || "2";
-let soundEnabled = (localStorage.getItem("bell_sound_enabled") || "1") === "1";
-
-let audioCtx = null;
-
-let warnedThisBlock = false;
-let warnBlockId = "";
-
-let prevPeriodSec = null;
-let prevTransitionSec = null;
-
-function pad(n){ return String(n).padStart(2, "0"); }
-
-function formatTime(mins){
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  const ampm = h >= 12 ? "PM" : "AM";
-  const hh = ((h + 11) % 12) + 1;
-  return `${hh}:${pad(m)} ${ampm}`;
-}
-
-function getDayKey(){
-  const d = new Date().getDay();
-  if (d === 6) return "sat";
-  if (d === 5) return "fri";
-  if (d === 0) return "sun";
-  return "mon_thurs";
-}
-
-function nowMinutes(){
-  const n = new Date();
-  return n.getHours() * 60 + n.getMinutes() + n.getSeconds() / 60;
-}
-
-function updateBuildingButton(){
-  switchBtn.textContent = building === "2" ? "Show Building 1" : "Show Building 2";
-}
-
-function updateSoundButton(){
-  soundBtn.textContent = soundEnabled ? "Sound On" : "Sound Off";
-}
-
-function ensureAudioReady(){
-  if (!soundEnabled) return Promise.resolve(false);
-
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-  if (audioCtx.state === "suspended") {
-    return audioCtx.resume().then(() => true).catch(() => false);
-  }
-
-  return Promise.resolve(true);
-}
-
-function playBeepNow(){
-  if (!audioCtx) return;
-
-  const t = audioCtx.currentTime;
-
-  const osc1 = audioCtx.createOscillator();
-  const osc2 = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-
-  osc1.type = "square";
-  osc2.type = "sine";
-
-  osc1.frequency.setValueAtTime(1760, t);
-  osc2.frequency.setValueAtTime(2093, t);
-
-  osc1.frequency.exponentialRampToValueAtTime(1320, t + 0.08);
-  osc2.frequency.exponentialRampToValueAtTime(1568, t + 0.08);
-
-  gain.gain.setValueAtTime(0.0001, t);
-  gain.gain.exponentialRampToValueAtTime(0.7, t + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
-
-  osc1.connect(gain);
-  osc2.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  osc1.start(t);
-  osc2.start(t);
-  osc1.stop(t + 0.24);
-  osc2.stop(t + 0.24);
-}
-
-function playLongBeepNow(){
-  if (!audioCtx) return;
-
-  const t = audioCtx.currentTime;
-
-  const osc1 = audioCtx.createOscillator();
-  const osc2 = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-
-  osc1.type = "sine";
-  osc2.type = "sine";
-
-  osc1.frequency.setValueAtTime(520, t);
-  osc2.frequency.setValueAtTime(780, t);
-
-  gain.gain.setValueAtTime(0.28, t);
-
-  osc1.connect(gain);
-  osc2.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  osc1.start(t);
-  osc2.start(t);
-
-  osc1.stop(t + 2.0);
-  osc2.stop(t + 2.0);
-}
-
-function beep(){
-  if (!soundEnabled) return;
-  ensureAudioReady().then((ok) => { if (ok) playBeepNow(); });
-}
-
-function longBeep(){
-  if (!soundEnabled) return;
-  ensureAudioReady().then((ok) => { if (ok) playLongBeepNow(); });
-}
-
-function maybeBeep(phase, secondsLeftInt, blockId){
-  if (!soundEnabled) return;
-
-  if (phase === "period") {
-    if (warnBlockId !== blockId) {
-      warnBlockId = blockId;
-      warnedThisBlock = false;
-      prevPeriodSec = null;
-    }
-
-    if (!warnedThisBlock && secondsLeftInt <= 120 && secondsLeftInt > 0) {
-      warnedThisBlock = true;
-      longBeep();
-    }
-
-    const cur = secondsLeftInt;
-    const prev = prevPeriodSec;
-
-    if (cur > 0) {
-      if (prev === null) {
-        if (cur <= 5) beep();
-      } else if (prev > cur) {
-        const from = Math.min(prev - 1, 5);
-        const to = Math.max(cur, 1);
-        if (to <= 5) {
-          for (let s = from; s >= to; s--) beep();
-        }
-      }
-    }
-
-    prevPeriodSec = cur;
-    return;
-  }
-
-  if (phase === "transition") {
-    const cur = secondsLeftInt;
-    const prev = prevTransitionSec;
-
-    if (cur > 0) {
-      if (prev === null) {
-        if (cur <= 3) beep();
-      } else if (prev > cur) {
-        const from = Math.min(prev - 1, 3);
-        const to = Math.max(cur, 1);
-        if (to <= 3) {
-          for (let s = from; s >= to; s--) beep();
-        }
-      }
-    }
-
-    prevTransitionSec = cur;
-  }
-}
-
-function fitTimerValue(){
-  const tv = el("remainingValue");
-  const card = document.querySelector(".timerCard");
-  if (!tv || !card) return;
-
-  const timerTile = document.querySelector(".timerCard");
-  if (timerTile && timerTile.classList.contains("noTimer")) return;
-
-  const maxW = Math.max(140, card.clientWidth - 56);
-  const maxH = Math.max(140, card.clientHeight - 90);
-
-  const safeW = maxW * 0.98;
-  const safeH = maxH * 0.98;
-
-  let lo = 30;
-  let hi = Math.min(1200, maxH * 1.2, maxW * 1.2);
-
-  for (let i = 0; i < 14; i++) {
-    const mid = (lo + hi) / 2;
-    tv.style.fontSize = `${mid}px`;
-
-    const r = tv.getBoundingClientRect();
-    if (r.width <= safeW && r.height <= safeH) lo = mid;
-    else hi = mid;
-  }
-
-  tv.style.fontSize = `${lo}px`;
-}
-
-function setDisplay(statusLabel, rangeText, secondsLeft, nextBellText){
-  el("statusValue").textContent = statusLabel;
-  el("periodRange").textContent = rangeText;
-
-  const timerTile = document.querySelector(".timerCard");
-
-  if (secondsLeft === null || secondsLeft === undefined) {
-    timerTile.classList.add("noTimer");
-    el("remainingValue").textContent = "";
-  } else {
-    timerTile.classList.remove("noTimer");
-    const s = Math.max(0, Math.floor(secondsLeft));
-    el("remainingValue").textContent = `${Math.floor(s / 60)}:${pad(s % 60)}`;
-  }
-
-  el("nextBellValue").textContent = nextBellText;
-  requestAnimationFrame(fitTimerValue);
-}
-
-function resetBellTracking(){
-  warnBlockId = "";
-  warnedThisBlock = false;
-  prevPeriodSec = null;
-  prevTransitionSec = null;
-}
-
-function tick(){
-  if (calendarReady && closedToday) {
-    setDisplay("School closed", "", null, "No bells today");
-    resetBellTracking();
-    return;
-  }
-
-  const dayKey = getDayKey();
-
-  if (dayKey === "sun") {
-    setDisplay("No School", "Sunday", null, "No bells today");
-    resetBellTracking();
-    return;
-  }
-
-  const blocks = schedules[building][dayKey];
-  const nowM = nowMinutes();
-
-  for (let i = 0; i < blocks.length; i++) {
-    const b = blocks[i];
-    if (nowM >= b.start && nowM < b.end) {
-      const secondsLeft = Math.max(0, Math.floor((b.end - nowM) * 60));
-      const statusText = b.label ? b.label : `P ${b.period}`;
-
-      setDisplay(
-        statusText,
-        `${formatTime(b.start)} to ${formatTime(b.end)}`,
-        secondsLeft,
-        `Next bell at ${formatTime(b.end)}`
-      );
-
-      const blockId = `${dayKey}_${building}_${i}_${b.start}_${b.end}`;
-      prevTransitionSec = null;
-      maybeBeep("period", secondsLeft, blockId);
-      return;
-    }
-  }
-
-  if (nowM < blocks[0].start) {
-    const secondsLeft = Math.max(0, Math.floor((blocks[0].start - nowM) * 60));
-    setDisplay(
-      "Before School",
-      `First bell at ${formatTime(blocks[0].start)}`,
-      secondsLeft,
-      `Next bell at ${formatTime(blocks[0].start)}`
-    );
-    resetBellTracking();
-    return;
-  }
-
-  for (let i = 0; i < blocks.length - 1; i++) {
-    if (nowM >= blocks[i].end && nowM < blocks[i + 1].start) {
-      const secondsLeft = Math.max(0, Math.floor((blocks[i + 1].start - nowM) * 60));
-      const nextName = blocks[i + 1].label ? blocks[i + 1].label : `P ${blocks[i + 1].period}`;
-
-      setDisplay(
-        "Transition",
-        `Next: ${nextName}`,
-        secondsLeft,
-        `Next bell at ${formatTime(blocks[i + 1].start)}`
-      );
-
-      prevPeriodSec = null;
-      maybeBeep("transition", secondsLeft, "transition");
-      return;
-    }
-  }
-
-  setDisplay(
-    "No Classes or Activities",
-    "",
-    null,
-    `Next school day starts at ${formatTime(blocks[0].start)}`
+html{
+  height: 100%;
+  background: linear-gradient(-45deg,
+    #0b2a5b,
+    #7c3aed,
+    #ef4444,
+    #22c55e,
+    #06b6d4,
+    #0b2a5b
   );
-
-  resetBellTracking();
+  background-size: 500% 500%;
+  animation: bgMove 45s linear infinite;
 }
 
-switchBtn.onclick = () => {
-  building = building === "2" ? "1" : "2";
-  localStorage.setItem("bell_building", building);
-  updateBuildingButton();
-  tick();
-};
+body{
+  margin: 0;
+  min-height: var(--appH);
+  height: 100%;
+  background: transparent;
+  color: #ffffff;
+}
 
-soundBtn.onclick = () => {
-  soundEnabled = !soundEnabled;
-  localStorage.setItem("bell_sound_enabled", soundEnabled ? "1" : "0");
-  if (soundEnabled) ensureAudioReady();
-  updateSoundButton();
-};
+@keyframes bgMove{
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
-updateBuildingButton();
-updateSoundButton();
+.wrap{
+  min-height: var(--appH);
+  display: grid;
+  place-items: start center;
+  padding: 12px;
+  padding-top: 16px;
+  box-sizing: border-box;
+}
 
-initCalendarClosedCheck().then(() => {
-  tick();
-  setInterval(tick, 250);
-});
+.card{
+  width: min(1100px, 98vw);
+  height: calc(var(--appH) - 24px);
+  max-height: calc(var(--appH) - 24px);
 
-window.addEventListener("resize", () => requestAnimationFrame(fitTimerValue));
-document.addEventListener("fullscreenchange", () => requestAnimationFrame(fitTimerValue));
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 
-function toggleFullscreen(){
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(() => {});
-  } else {
-    document.exitFullscreen().catch(() => {});
+  background: rgba(5,20,50,0.85);
+  border-radius: 24px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+  padding: 12px;
+
+  display: grid;
+  grid-template-rows: 1fr auto auto;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.stack{
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 10px;
+  min-height: 0;
+}
+
+.tile{
+  background: linear-gradient(180deg, #1f2933, #111827);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.12),
+    0 14px 30px rgba(0,0,0,0.60);
+  padding: 12px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  box-sizing: border-box;
+  min-height: 0;
+}
+
+.statusTile{
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: 6px 12px;
+  min-height: 56px;
+}
+
+.statusValue{
+  font-size: clamp(34px, 5.5vh, 62px);
+  font-weight: 950;
+  color: #ffffff;
+  text-shadow: 0 6px 16px rgba(0,0,0,0.65);
+  line-height: 1;
+
+  white-space: nowrap;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.timerCard{
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  display: block;
+  min-height: 220px;
+}
+
+.timerLabel{
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: clamp(12px, 1.6vh, 16px);
+  margin: 0;
+  z-index: 3;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.timerCard.noTimer .timerLabel{
+  display: none;
+}
+
+.timerValue{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  display: inline-block;
+  width: auto;
+  max-width: 100%;
+
+  text-align: center;
+  font-weight: 950;
+  line-height: 0.78;
+  color: #facc15;
+  text-shadow: 0 16px 32px rgba(0,0,0,0.78);
+  white-space: nowrap;
+  margin: 0;
+  z-index: 1;
+  pointer-events: none;
+
+  font-variant-numeric: tabular-nums;
+}
+
+.timerSub{
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: clamp(12px, 1.6vh, 16px);
+  margin: 0;
+  text-align: center;
+  width: calc(100% - 24px);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.timerCard.noTimer .timerValue{ display: none; }
+.timerCard.noTimer .timerLabel{ top: 14px; }
+
+.timerCard.noTimer .timerSub{
+  top: 44%;
+  bottom: auto;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(18px, 2.4vh, 26px);
+  width: calc(100% - 24px);
+}
+
+.periodRange{
+  text-align: center;
+  font-size: clamp(13px, 1.9vh, 18px);
+  color: #ffffff;
+  padding: 2px 10px;
+  overflow-wrap: anywhere;
+}
+
+.bottomBar{
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255,255,255,0.20);
+}
+
+.btn{
+  font-size: clamp(14px, 2.0vh, 18px);
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.55);
+  cursor: pointer;
+  font-weight: 800;
+  background: linear-gradient(180deg, #1f2933, #111827);
+  color: #ffffff;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.50);
+}
+
+.btn:active{ transform: scale(0.97); }
+.btn:hover{ filter: brightness(1.15); }
+
+#errBox{
+  display: none;
+  margin: 6px 0 0 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.25);
+  font-size: 14px;
+  line-height: 1.25;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (orientation: portrait){
+  html, body{ height: 100%; }
+
+  body{
+    min-height: 100%;
+    overflow: hidden;
+  }
+
+  .wrap{
+    position: fixed;
+    inset: 0;
+    min-height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    padding: 12px;
+    padding-top: 16px;
+    box-sizing: border-box;
+  }
+
+  .card{
+    height: 100%;
+    max-height: none;
+  }
+
+  .statusValue{
+    white-space: normal;
+    text-wrap: balance;
+    font-size: clamp(26px, 4.2vh, 44px);
+    line-height: 1.05;
   }
 }
 
-let audioUnlocked = false;
+@media (orientation: landscape){
+  .wrap{
+    padding-top: 10px;
+  }
 
-function unlockAudioOnce(){
-  if (audioUnlocked) return;
-  audioUnlocked = true;
-  if (soundEnabled) ensureAudioReady();
+  .card{
+    height: 100%;
+    max-height: none;
+  }
+
+  .timerCard{
+    min-height: 150px;
+  }
+
+  .bottomBar{
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
 }
-
-document.addEventListener("pointerdown", unlockAudioOnce, { once: true });
-document.addEventListener("touchstart", unlockAudioOnce, { once: true });
-document.addEventListener("dblclick", () => toggleFullscreen());
