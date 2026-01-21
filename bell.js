@@ -491,3 +491,18 @@ function toggleFullscreen(){
 }
 
 document.addEventListener("dblclick", () => toggleFullscreen());
+
+let audioUnlocked = false;
+
+function unlockAudioOnce(){
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+
+  soundEnabled = true;
+  localStorage.setItem("bell_sound_enabled", "1");
+  ensureAudio();
+  updateSoundButton();
+}
+
+document.addEventListener("pointerdown", unlockAudioOnce, { once: true });
+document.addEventListener("touchstart", unlockAudioOnce, { once: true });
