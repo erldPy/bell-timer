@@ -113,7 +113,7 @@ const schedules = {
       { start: toMin(13,15), end: toMin(14,12), period: 7 },
       { start: toMin(14,16), end: toMin(15,13), period: 8 },
       { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
-      { start: toMin(15,45), end: toMin(17,0), label: "After-school Programs" }
+      { start: toMin(15,45), end: toMin(17,0),  label: "After-school Programs" }
     ],
     "wed": [
       { start: toMin(7,36), end: toMin(8,33), period: 1 },
@@ -125,7 +125,7 @@ const schedules = {
       { start: toMin(13,15), end: toMin(14,12), period: 7 },
       { start: toMin(14,16), end: toMin(15,13), period: 8 },
       { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
-      { start: toMin(15,45), end: toMin(17,0), label: "Faculty Meetings" }
+      { start: toMin(15,45), end: toMin(17,0),  label: "Faculty Meetings" }
     ],
     "fri": [
       { start: toMin(7,36), end: toMin(8,14), period: 1 },
@@ -144,7 +144,6 @@ const schedules = {
       { start: toMin(10,30), end: toMin(12,0),  label: "Tutorial 2" }
     ]
   },
-
   "2": {
     "mon_thurs": [
       { start: toMin(7,36), end: toMin(8,33), period: 1 },
@@ -156,7 +155,7 @@ const schedules = {
       { start: toMin(13,15), end: toMin(14,12), period: 7 },
       { start: toMin(14,16), end: toMin(15,13), period: 8 },
       { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
-      { start: toMin(15,45), end: toMin(17,0), label: "After-school Programs" }
+      { start: toMin(15,45), end: toMin(17,0),  label: "After-school Programs" }
     ],
     "wed": [
       { start: toMin(7,36), end: toMin(8,33), period: 1 },
@@ -168,7 +167,7 @@ const schedules = {
       { start: toMin(13,15), end: toMin(14,12), period: 7 },
       { start: toMin(14,16), end: toMin(15,13), period: 8 },
       { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
-      { start: toMin(15,45), end: toMin(17,0), label: "Faculty Meetings" }
+      { start: toMin(15,45), end: toMin(17,0),  label: "Faculty Meetings" }
     ],
     "fri": [
       { start: toMin(7,36), end: toMin(8,14), period: 1 },
@@ -189,7 +188,328 @@ const schedules = {
   }
 };
 
+const switchBtn = el("switchBtn");
+const soundBtn = el("soundBtn");
+
+let building = localStorage.getItem("bell_building") || "2";
+let soundEnabled = (localStorage.getItem("bell_sound_enabled") || "1") === "1";
+
+let audioCtx = null;
+
+function pad(n){ return String(n).padStart(2, "0"); }
+
+function formatTime(mins){
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  const ampm = h >= 12 ? "PM" : "AM";
+  const hh = ((h + 11) % 12) + 1;
+  return `${hh}:${pad(m)} ${ampm}`;
+}
+
+function getDayKey(){
+  const d = new Date().getDay();
+  if (d === 6) return "sat";
+  if (d === 5) return "fri";
+  if (d === 3) return "wed";
+  if (d === 0) return "sun";
+  return "mon_thurs";
+}
+
+function nowMinutes(){
+  const n = new Date();
+  return n.getHours() * 60 + n.getMinutes() + n.getSeconds() / 60;
+}
+
+function updateBuildingButton(){
+  switchBtn.textContent = building === "2" ? "Show Building 1" : "Show Building 2";
+}
+
+function updateSoundButton(){
+  soundBtn.textContent = soundEnabled ? "Sound On" : "Sound Off";
+}
+
+function ensureAudio(){
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === "suspended") audioCtx.resume();
+}
+
+function longBeep(){
+  if (!soundEnabled) return;
+  ensureAudio();
+  if (!audioCtx) return;
+
+  const t = audioCtx.currentTime;
+
+  const osc1 = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc1.type = "sine";
+  osc2.type = "sine";
+
+  osc1.frequency.setValueAtTime(520, t);
+  osc2.frequency.setValueAtTime(780, t);
+
+  gain.gain.setValueAtTime(0.28, t);
+
+  osc1.connect(gain);
+  osc2.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc1.start(t);
+  osc2.start(t);
+
+  osc1.stop(t + 2.0);
+  osc2.stop(t + 2.0);
+}
+
+let currentBlockId = "";
+let playedTwoMinForBlock = false;
+let playedEndForBlock = false;
+
+let lastSeenPeriodBlockId = "";
+let lastSeenPeriodEndMin = null;
+let endBellFiredForBlockId = "";
+
+let playedMorningBellForDay = "";
+
+function resetSoundState(){
+  currentBlockId = "";
+  playedTwoMinForBlock = false;
+  playedEndForBlock = false;
+
+  lastSeenPeriodBlockId = "";
+  lastSeenPeriodEndMin = null;
+  endBellFiredForBlockId = "";
+}
+
+function maybePeriodLongSounds(secondsLeftInt, blockId){
+  if (!soundEnabled) return;
+
+  if (currentBlockId !== blockId) {
+    currentBlockId = blockId;
+    playedTwoMinForBlock = false;
+    playedEndForBlock = false;
+
+    longBeep();
+  }
+
+  if (!playedTwoMinForBlock && secondsLeftInt <= 120 && secondsLeftInt > 0) {
+    playedTwoMinForBlock = true;
+    longBeep();
+  }
+
+  if (!playedEndForBlock && secondsLeftInt <= 0) {
+    playedEndForBlock = true;
+    longBeep();
+  }
+}
+
+function fitTimerValue(){
+  const tv = el("remainingValue");
+  const card = document.querySelector(".timerCard");
+  if (!tv || !card) return;
+
+  const timerTile = document.querySelector(".timerCard");
+  if (timerTile && timerTile.classList.contains("noTimer")) return;
+
+  const maxW = Math.max(140, card.clientWidth - 56);
+  const maxH = Math.max(140, card.clientHeight - 90);
+
+  const safeW = maxW * 0.98;
+  const safeH = maxH * 0.98;
+
+  let lo = 30;
+  let hi = Math.min(1200, maxH * 1.2, maxW * 1.2);
+
+  for (let i = 0; i < 14; i++) {
+    const mid = (lo + hi) / 2;
+    tv.style.fontSize = `${mid}px`;
+
+    const r = tv.getBoundingClientRect();
+    if (r.width <= safeW && r.height <= safeH) lo = mid;
+    else hi = mid;
+  }
+
+  tv.style.fontSize = `${lo}px`;
+}
+
+function setDisplay(statusLabel, rangeText, secondsLeft, nextBellText){
+  el("statusValue").textContent = statusLabel;
+  el("periodRange").textContent = rangeText;
+
+  const timerTile = document.querySelector(".timerCard");
+
+  if (secondsLeft === null || secondsLeft === undefined) {
+    timerTile.classList.add("noTimer");
+    el("remainingValue").textContent = "";
+  } else {
+    timerTile.classList.remove("noTimer");
+    const s = Math.max(0, Math.floor(secondsLeft));
+    el("remainingValue").textContent = `${Math.floor(s / 60)}:${pad(s % 60)}`;
+  }
+
+  el("nextBellValue").textContent = nextBellText;
+  requestAnimationFrame(fitTimerValue);
+}
+
+function tick(){
+  const dayKey = getDayKey();
+
+  if (calendarReady && closedToday) {
+    setDisplay("School closed", "", null, "No bells today");
+    resetSoundState();
+    return;
+  }
+
+  if (dayKey === "sun") {
+    setDisplay("No School", "Sunday", null, "No bells today");
+    resetSoundState();
+    return;
+  }
+
+  const blocks = schedules[building][dayKey];
+  const nowM = nowMinutes();
+
+  for (let i = 0; i < blocks.length; i++) {
+    const b = blocks[i];
+    if (nowM >= b.start && nowM < b.end) {
+      const secondsLeft = Math.max(0, Math.round((b.end - nowM) * 60));
+
+      let statusText = b.label ? b.label : `P ${b.period}`;
+
+      if (building === "1" && b.period === 5) statusText += " Lunch 1";
+      if (building === "2" && b.period === 6) statusText += " Lunch 2";
+
+      setDisplay(
+        statusText,
+        `${formatTime(b.start)} to ${formatTime(b.end)}`,
+        secondsLeft,
+        `Next bell at ${formatTime(b.end)}`
+      );
+
+      const blockId = `${dayKey}_${building}_${i}_${b.start}_${b.end}`;
+      lastSeenPeriodBlockId = blockId;
+      lastSeenPeriodEndMin = b.end;
+
+      if (b.period) {
+        maybePeriodLongSounds(secondsLeft, blockId);
+      }
+      return;
+    }
+  }
+
+  if (
+    lastSeenPeriodBlockId &&
+    endBellFiredForBlockId !== lastSeenPeriodBlockId &&
+    lastSeenPeriodEndMin !== null &&
+    nowM >= lastSeenPeriodEndMin
+  ) {
+    endBellFiredForBlockId = lastSeenPeriodBlockId;
+    longBeep();
+  }
+
+  if (nowM < blocks[0].start) {
+    if (nowM < DAY_START_MIN) {
+      setDisplay(
+        "Before School",
+        `Day starts at ${formatTime(DAY_START_MIN)}`,
+        null,
+        `Next bell at ${formatTime(blocks[0].start)}`
+      );
+    } else {
+      const secondsLeft = Math.max(0, Math.round((blocks[0].start - nowM) * 60));
+      const morningKey = todayKey();
+
+      if (playedMorningBellForDay !== morningKey && secondsLeft <= 2 && secondsLeft >= 0) {
+        playedMorningBellForDay = morningKey;
+        longBeep();
+      }
+
+      setDisplay(
+        "Before School",
+        `First bell at ${formatTime(blocks[0].start)}`,
+        secondsLeft,
+        `Next bell at ${formatTime(blocks[0].start)}`
+      );
+    }
+    resetSoundState();
+    return;
+  }
+
+  for (let i = 0; i < blocks.length - 1; i++) {
+    if (nowM >= blocks[i].end && nowM < blocks[i + 1].start) {
+      const secondsLeft = Math.max(0, Math.round((blocks[i + 1].start - nowM) * 60));
+      const nextName = blocks[i + 1].label ? blocks[i + 1].label : `P ${blocks[i + 1].period}`;
+
+      setDisplay(
+        "Transition",
+        `Next: ${nextName}`,
+        secondsLeft,
+        `Next bell at ${formatTime(blocks[i + 1].start)}`
+      );
+
+      resetSoundState();
+      return;
+    }
+  }
+
+  setDisplay(
+    "No Classes or Activities",
+    "",
+    null,
+    `Next school day starts at ${formatTime(blocks[0].start)}`
+  );
+
+  resetSoundState();
+}
+
+switchBtn.onclick = () => {
+  building = building === "2" ? "1" : "2";
+  localStorage.setItem("bell_building", building);
+  updateBuildingButton();
+  tick();
+};
+
+soundBtn.onclick = () => {
+  soundEnabled = !soundEnabled;
+  localStorage.setItem("bell_sound_enabled", soundEnabled ? "1" : "0");
+  if (soundEnabled) ensureAudio();
+  updateSoundButton();
+};
+
+updateBuildingButton();
+updateSoundButton();
+
 initCalendarClosedCheck().then(() => {
   tick();
   setInterval(tick, 200);
 });
+
+window.addEventListener("resize", () => requestAnimationFrame(fitTimerValue));
+document.addEventListener("fullscreenchange", () => requestAnimationFrame(fitTimerValue));
+
+function toggleFullscreen(){
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+document.addEventListener("dblclick", () => toggleFullscreen());
+
+let audioUnlocked = false;
+
+function unlockAudioOnce(){
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+
+  soundEnabled = true;
+  localStorage.setItem("bell_sound_enabled", "1");
+  ensureAudio();
+  updateSoundButton();
+}
+
+document.addEventListener("pointerdown", unlockAudioOnce, { once: true });
+document.addEventListener("touchstart", unlockAudioOnce, { once: true });
