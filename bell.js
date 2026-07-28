@@ -18,6 +18,24 @@ window.addEventListener("unhandledrejection", (e) => {
 const toMin = (h, m) => h * 60 + m;
 const DAY_START_MIN = toMin(7, 0);
 
+// 2026-2027 instructional school year
+// JavaScript months begin at 0: January = 0, August = 7, May = 4
+const SCHOOL_START = new Date(2026, 7, 12); // August 12, 2026
+const SCHOOL_END = new Date(2027, 4, 27);   // May 27, 2027
+
+function isOutsideSchoolYear() {
+  const now = new Date();
+
+  // Remove the current time so only calendar dates are compared
+  const today = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+
+  return today < SCHOOL_START || today > SCHOOL_END;
+}
+
 function setViewportVars(){
   const h = window.innerHeight;
   document.documentElement.style.setProperty("--appH", `${h}px`);
