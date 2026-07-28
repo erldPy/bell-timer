@@ -104,86 +104,93 @@ async function initCalendarClosedCheck() {
 const schedules = {
   "1": {
     "mon_thurs": [
-      { start: toMin(7,36), end: toMin(8,33), period: 1 },
-      { start: toMin(8,37), end: toMin(9,34), period: 2 },
-      { start: toMin(9,38), end: toMin(10,35), period: 3 },
-      { start: toMin(10,39), end: toMin(11,36), period: 4 },
-      { start: toMin(11,40), end: toMin(12,10), period: 5 },
-      { start: toMin(12,14), end: toMin(13,11), period: 6 },
-      { start: toMin(13,15), end: toMin(14,12), period: 7 },
-      { start: toMin(14,16), end: toMin(15,13), period: 8 },
-      { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
-      { start: toMin(15,45), end: toMin(17,0),  label: "After-school Programs" }
+      { start: toMin(7,45), end: toMin(8,46), period: 1 },
+      { start: toMin(8,51), end: toMin(9,48), period: 2 },
+      { start: toMin(9,53), end: toMin(10,50), period: 3 },
+      { start: toMin(10,55), end: toMin(11,52), period: 4 },
+      { start: toMin(11,57), end: toMin(12,22), period: 5 },
+      { start: toMin(12,27), end: toMin(13,24), period: 6 },
+      { start: toMin(13,29), end: toMin(14,26), period: 7 },
+      { start: toMin(14,31), end: toMin(15,28), period: 8 },
+      { start: toMin(15,28), end: toMin(15,45), label: "Dismissal" },
+      { start: toMin(15,45), end: toMin(17,0), label: "After-school Programs" }
     ],
+
     "wed": [
-      { start: toMin(7,36), end: toMin(8,33), period: 1 },
-      { start: toMin(8,37), end: toMin(9,34), period: 2 },
-      { start: toMin(9,38), end: toMin(10,35), period: 3 },
-      { start: toMin(10,39), end: toMin(11,36), period: 4 },
-      { start: toMin(11,40), end: toMin(12,10), period: 5 },
-      { start: toMin(12,14), end: toMin(13,11), period: 6 },
-      { start: toMin(13,15), end: toMin(14,12), period: 7 },
-      { start: toMin(14,16), end: toMin(15,13), period: 8 },
-      { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
-      { start: toMin(15,45), end: toMin(17,0),  label: "Faculty Meetings" }
+      { start: toMin(7,45), end: toMin(8,46), period: 1 },
+      { start: toMin(8,51), end: toMin(9,48), period: 2 },
+      { start: toMin(9,53), end: toMin(10,50), period: 3 },
+      { start: toMin(10,55), end: toMin(11,52), period: 4 },
+      { start: toMin(11,57), end: toMin(12,22), period: 5 },
+      { start: toMin(12,27), end: toMin(13,24), period: 6 },
+      { start: toMin(13,29), end: toMin(14,26), period: 7 },
+      { start: toMin(14,31), end: toMin(15,28), period: 8 },
+      { start: toMin(15,28), end: toMin(15,45), label: "Dismissal" },
+      { start: toMin(15,45), end: toMin(17,0), label: "Faculty Meetings" }
     ],
+
     "fri": [
-      { start: toMin(7,36), end: toMin(8,14), period: 1 },
-      { start: toMin(8,18), end: toMin(8,56), period: 2 },
-      { start: toMin(9,0),  end: toMin(9,38), period: 3 },
-      { start: toMin(9,42), end: toMin(10,20), period: 4 },
-      { start: toMin(10,24), end: toMin(10,54), period: 5 },
-      { start: toMin(10,58), end: toMin(11,36), period: 6 },
-      { start: toMin(11,40), end: toMin(12,18), period: 7 },
-      { start: toMin(12,22), end: toMin(13,0),  period: 8 },
-      { start: toMin(13,0),  end: toMin(13,30), label: "Dismissal" }
+      { start: toMin(7,45), end: toMin(8,23), period: 1 },
+      { start: toMin(8,28), end: toMin(9,6), period: 2 },
+      { start: toMin(9,11), end: toMin(9,49), period: 3 },
+      { start: toMin(9,54), end: toMin(10,32), period: 4 },
+      { start: toMin(10,37), end: toMin(11,2), period: 5 },
+      { start: toMin(11,7), end: toMin(11,45), period: 6 },
+      { start: toMin(11,50), end: toMin(12,28), period: 7 },
+      { start: toMin(12,33), end: toMin(13,11), period: 8 },
+      { start: toMin(13,11), end: toMin(13,30), label: "Dismissal" }
     ],
+
     "sat": [
-      { start: toMin(9,0),  end: toMin(10,15), label: "Tutorial 1" },
+      { start: toMin(9,0), end: toMin(10,15), label: "Tutorial 1" },
       { start: toMin(10,15), end: toMin(10,30), label: "Break" },
-      { start: toMin(10,30), end: toMin(12,0),  label: "Tutorial 2" }
+      { start: toMin(10,30), end: toMin(12,0), label: "Tutorial 2" }
     ]
   },
+
   "2": {
     "mon_thurs": [
-      { start: toMin(7,36), end: toMin(8,33), period: 1 },
-      { start: toMin(8,37), end: toMin(9,34), period: 2 },
-      { start: toMin(9,38), end: toMin(10,35), period: 3 },
-      { start: toMin(10,39), end: toMin(11,36), period: 4 },
-      { start: toMin(11,40), end: toMin(12,37), period: 5 },
-      { start: toMin(12,41), end: toMin(13,11), period: 6 },
-      { start: toMin(13,15), end: toMin(14,12), period: 7 },
-      { start: toMin(14,16), end: toMin(15,13), period: 8 },
-      { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
-      { start: toMin(15,45), end: toMin(17,0),  label: "After-school Programs" }
+      { start: toMin(7,45), end: toMin(8,46), period: 1 },
+      { start: toMin(8,51), end: toMin(9,48), period: 2 },
+      { start: toMin(9,53), end: toMin(10,50), period: 3 },
+      { start: toMin(10,55), end: toMin(11,52), period: 4 },
+      { start: toMin(11,57), end: toMin(12,54), period: 5 },
+      { start: toMin(12,59), end: toMin(13,24), period: 6 },
+      { start: toMin(13,29), end: toMin(14,26), period: 7 },
+      { start: toMin(14,31), end: toMin(15,28), period: 8 },
+      { start: toMin(15,28), end: toMin(15,45), label: "Dismissal" },
+      { start: toMin(15,45), end: toMin(17,0), label: "After-school Programs" }
     ],
+
     "wed": [
-      { start: toMin(7,36), end: toMin(8,33), period: 1 },
-      { start: toMin(8,37), end: toMin(9,34), period: 2 },
-      { start: toMin(9,38), end: toMin(10,35), period: 3 },
-      { start: toMin(10,39), end: toMin(11,36), period: 4 },
-      { start: toMin(11,40), end: toMin(12,37), period: 5 },
-      { start: toMin(12,41), end: toMin(13,11), period: 6 },
-      { start: toMin(13,15), end: toMin(14,12), period: 7 },
-      { start: toMin(14,16), end: toMin(15,13), period: 8 },
-      { start: toMin(15,13), end: toMin(15,45), label: "Dismissal" },
-      { start: toMin(15,45), end: toMin(17,0),  label: "Faculty Meetings" }
+      { start: toMin(7,45), end: toMin(8,46), period: 1 },
+      { start: toMin(8,51), end: toMin(9,48), period: 2 },
+      { start: toMin(9,53), end: toMin(10,50), period: 3 },
+      { start: toMin(10,55), end: toMin(11,52), period: 4 },
+      { start: toMin(11,57), end: toMin(12,54), period: 5 },
+      { start: toMin(12,59), end: toMin(13,24), period: 6 },
+      { start: toMin(13,29), end: toMin(14,26), period: 7 },
+      { start: toMin(14,31), end: toMin(15,28), period: 8 },
+      { start: toMin(15,28), end: toMin(15,45), label: "Dismissal" },
+      { start: toMin(15,45), end: toMin(17,0), label: "Faculty Meetings" }
     ],
+
     "fri": [
-      { start: toMin(7,36), end: toMin(8,14), period: 1 },
-      { start: toMin(8,18), end: toMin(8,56), period: 2 },
-      { start: toMin(9,0),  end: toMin(9,38), period: 3 },
-      { start: toMin(9,42), end: toMin(10,20), period: 4 },
-      { start: toMin(10,24), end: toMin(11,2),  period: 5 },
-      { start: toMin(11,6),  end: toMin(11,36), period: 6 },
-      { start: toMin(11,40), end: toMin(12,18), period: 7 },
-      { start: toMin(12,22), end: toMin(13,0),  period: 8 },
-      { start: toMin(13,0),  end: toMin(13,30), label: "Dismissal" }
+      { start: toMin(7,45), end: toMin(8,23), period: 1 },
+      { start: toMin(8,28), end: toMin(9,6), period: 2 },
+      { start: toMin(9,11), end: toMin(9,49), period: 3 },
+      { start: toMin(9,54), end: toMin(10,32), period: 4 },
+      { start: toMin(10,37), end: toMin(11,15), period: 5 },
+      { start: toMin(11,20), end: toMin(11,45), period: 6 },
+      { start: toMin(11,50), end: toMin(12,28), period: 7 },
+      { start: toMin(12,33), end: toMin(13,11), period: 8 },
+      { start: toMin(13,11), end: toMin(13,30), label: "Dismissal" }
     ],
+
     "sat": [
-      { start: toMin(9,0),  end: toMin(10,15), label: "Tutorial 1" },
+      { start: toMin(9,0), end: toMin(10,15), label: "Tutorial 1" },
       { start: toMin(10,15), end: toMin(10,30), label: "Break" },
-      { start: toMin(10,30), end: toMin(12,0),  label: "Tutorial 2" }
+      { start: toMin(10,30), end: toMin(12,0), label: "Tutorial 2" }
     ]
   }
 };
